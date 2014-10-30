@@ -8,50 +8,59 @@ class Perceptron:
         self.numfeats = numfeats
         self.w = numpy.zeros((numfeats+1,))   #+1 including intercept
         self.w[0] = 1 #arbitrary
+        self.alpha = 1 #learning weight (smaller alpha means less flexible, more "robust" in that the weight vector will not change as readily toward each misclassified point)
         
     def train(self, traindata, trainlabels, max_epochs):
-        """It updates the weight vector, self.w,"""
+        """It updates the weight vector, self.w"""
         mistakes = 1
         counter = 1
         print traindata.shape[0]
-
-        print "before: "
-        print traindata.shape
+        op =0
 
         #adds dummy feature column to the end to every row in traindata, for intercept calculation
         add = numpy.ones((traindata.shape[0], 1))
         traindata = numpy.hstack((traindata, add))
-        print traindata.shape
 
         while (mistakes > 0 and counter <= max_epochs):
             mistakes = 0
-            for i, row in enumerate(traindata): #for all rows,
-                total = 0
-                for index, x in enumerate(row): #sum up the distances from weight vector
-                    total += x * self.w[index]
-            #total += self.w[0] #add intercept
-                #print total
+            for i, row in enumerate(traindata):
+                total = numpy.dot(self.w, traindata[i, :])
+
                 if total*trainlabels[i] <= 0: #update weight vector if label doesn't match
                     #print "need to change!"
                     mistakes += 1
                     for fix, x in enumerate(row):
-                        self.w[fix] = self.w[fix] + trainlabels[i]*x #change every dimension 
+                        #print "before {0}".format(self.w[fix])
+                        self.w[fix] += self.alpha*trainlabels[i]*x #change every dimension
+                        #print "after adding/subtracting {0}: {1}".format(x, self.w[fix])
+                #elif total == 0: op +=1
+
             print 'total mistakes for this go around: {0}'.format(mistakes)
             counter += 1
             print counter
-
         
+        #print op
+        testfile = open('weightvector.txt', 'w')
+        for i in self.w:
+            testfile.write(str(i) + ' , ')
+
         return mistakes
 
     def test(self, testdata, testlabels):
 
         mistakes = 0
 
+        #adds dummy feature column to the end to every row in testdata, for intercept calculation
+        add = numpy.ones((testdata.shape[0], 1))
+        testdata = numpy.hstack((testdata, add))
+
         for i, row in enumerate(testdata):
-            total = 0
-            for index, x in enumerate(row):
-                total += x * self.w[index]
-            if total*trainlabels[i] <=0:
+            total = numpy.dot(self.w, testdata[i, :])
+
+            #for dimension in self.w:
+                #total += dimension * testdata[i, :]
+
+            if total*testlabels[i] <=0:
                 print "wrong!"
                 mistakes +=1
                 print mistakes
@@ -84,7 +93,7 @@ def rawdata_to_vectors(filename, ndims):
         else:
             labels[li] = -1
 
-    representations, numfeats = bagofwords(contents)   
+    representations, numfeats = bagofwords(contents)
     #TODO: change to call your feature extraction function
     print "Featurized data"
 
@@ -132,6 +141,17 @@ def bagofwords(contents):
             representations[i][feat_index]+=1
 
     return representations, cur_index+1
+
+def context(contents):
+    """represents data in left-right context-window of 1 """
+
+    representations = []
+    for words, postags in contents:
+        print words
+        print postags
+
+    return representations
+
 
 if __name__=='__main__':
     points, labels = rawdata_to_vectors('tweets1000.txt', ndims=None)
