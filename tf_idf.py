@@ -16,7 +16,7 @@ class tfidf:
 				else:
 					self.taggedWordDictionary(corpusDirectory+str(filename))
 
-	def wordDictionary(self, filename):
+	def wordDictionary(self, filename): #deprecated 
 		"""returns the file as a dictionary with word counts"""
 		wordCount = defaultdict(int)
 		words = open(str(filename)).readlines()
@@ -75,9 +75,8 @@ class tfidf:
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', type=str, help='', required=True)
-	parser.add_argument('-text', type=str, help='', required=True)
-	parser.add_argument('-tagged', type=str, help='', required=False, default=False)
+	parser.add_argument('-c', type=str, help='corpus folder', required=True)
+	parser.add_argument('-text', type=str, help='input file', required=True)
 	args = parser.parse_args()
 
 	program = tfidf(args.c, args.tagged)
