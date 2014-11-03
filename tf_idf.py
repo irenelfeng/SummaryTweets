@@ -66,7 +66,7 @@ class tfidf:
 				if word in self.allCorpora[corpus]:
 					numfiles +=1
 			if numfiles ==0: #if the word isn't in any of the corpora
-				numfiles = .1 #assume it is important
+				numfiles = .1 #assume it is important -- might change that later: the word is either important or mispelled 
 			idf = math.log((len(self.allCorpora)/(numfiles)))
 			tfidf = tf * idf
 
@@ -75,9 +75,9 @@ class tfidf:
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', type=str, help='', required=True)
-	parser.add_argument('-text', type=str, help='', required=True)
-	parser.add_argument('-tagged', type=str, help='', required=False, default=False)
+	parser.add_argument('-c', type=str, help='corpus', required=True)
+	parser.add_argument('-text', type=str, help='input file', required=True)
+	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
 	args = parser.parse_args()
 
 	program = tfidf(args.c, args.tagged)
