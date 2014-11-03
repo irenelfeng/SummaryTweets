@@ -12,6 +12,7 @@ class tfidf:
 			if filename.endswith(".pos"):
 				if tagged == False:
 					self.wordDictionary(corpusDirectory+str(filename))
+					print tagged
 				else:
 					self.taggedWordDictionary(corpusDirectory+str(filename))
 
@@ -24,7 +25,7 @@ class tfidf:
 			line = line.split()
 			for word in line:
 				wordCount[word] +=1
-		#print wordCount
+		print wordCount
 		self.allCorpora[filename] = wordCount #adds the corpus to the corpora dictionary
 	
 	def taggedWordDictionary(self, filename):
@@ -64,8 +65,9 @@ class tfidf:
 			for corpus in self.allCorpora:
 				if word in self.allCorpora[corpus]:
 					numfiles +=1
+			if numfiles ==0: #if the word isn't in any of the corpora
+				numfiles = .1 #assume it is important
 			idf = math.log((len(self.allCorpora)/(numfiles)))
-			print len(self.allCorpora)/numfiles
 			tfidf = tf * idf
 
 			tfidfDict[word] = tfidf
