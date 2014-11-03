@@ -7,7 +7,7 @@ class tfidf:
 	def __init__(self, corpusDirectory):
 		self.allCorpora = {} #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		for filename in os.listdir(corpusDirectory):
-			if filename.endswith(".txt"):
+			if filename.endswith(".pos"):
 				self.wordDictionary(corpusDirectory+str(filename))
 
 	def wordDictionary(self, filename):
