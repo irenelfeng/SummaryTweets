@@ -56,17 +56,20 @@ class tfidf:
 
 		# term frequency * log (# files total / # files with term)
 		for word in inputText:
-			print word
+			print "\n",word
 
 			tf = inputWordDictionary[word]
-			print tf
+			#print "tf", tf
 			numfiles = 0
 			for corpus in self.allCorpora:
 				if word in self.allCorpora[corpus]:
 					numfiles +=1
+			if numfiles == 0:
+				numfiles += 1
 			idf = math.log((len(self.allCorpora)/(numfiles)))
-			print len(self.allCorpora)/numfiles
+			#print "idf", len(self.allCorpora)/numfiles
 			tfidf = tf * idf
+			print 'tf', tf, "| idf", idf
 
 			tfidfDict[word] = tfidf
 		return tfidfDict
@@ -78,6 +81,8 @@ if __name__=='__main__':
 	parser.add_argument('-tagged', type=str, help='', required=False, default=False)
 	args = parser.parse_args()
 
+	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
+	print "Calculating Score..."
 	scores = program.tf_idf(args.text)
 	print scores
