@@ -56,7 +56,7 @@ class tfidf:
 
 		# term frequency * log (# files total / # files with term)
 		for word in inputText:
-			print "\n",word
+			#print "\n",word
 
 			tf = inputWordDictionary[word]
 			#print "tf", tf
@@ -69,10 +69,22 @@ class tfidf:
 			idf = math.log((len(self.allCorpora)/(numfiles)))
 			#print "idf", len(self.allCorpora)/numfiles
 			tfidf = tf * idf
-			print 'tf', tf, "| idf", idf
+			#print 'tf', tf, "| idf", idf
 
 			tfidfDict[word] = tfidf
 		return tfidfDict
+	
+	def summarize(self, inputText, scores):
+		IDScore = {}
+		sentences = re.split('(?<=[.!?]) +', inputText)
+		for i, j in scores.iteritems():
+			occurances = 0
+			for counter,sentence in enumerate(sentences):
+				occurances = sentence.count(i) #needs to not count words inside of words
+				print counter	
+
+		#sentenceScores = sorted(student_tuples, key=lambda student: student[2])
+		return summary
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
@@ -86,3 +98,5 @@ if __name__=='__main__':
 	print "Calculating Score..."
 	scores = program.tf_idf(args.text)
 	print scores
+	summary = program.summarize(args.text, scores)
+	print summary
