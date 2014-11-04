@@ -75,11 +75,9 @@ class tfidf:
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
-=======
 	parser.add_argument('-c', type=str, help='corpus', required=True)
 	parser.add_argument('-text', type=str, help='input file', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
->>>>>>> dff747bc42cac0ba58131e272fde362dc7ff7e8f
 	args = parser.parse_args()
 
 	program = tfidf(args.c, args.tagged)
