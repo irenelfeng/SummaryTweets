@@ -57,10 +57,10 @@ class tfidf:
 
 		# term frequency * log (# files total / # files with term)
 		for word in inputText:
-			print word
+			#print "\n",word
 
 			tf = inputWordDictionary[word]
-			print tf
+			#print "tf", tf
 			numfiles = 0
 			for corpus in self.allCorpora:
 				if word in self.allCorpora[corpus]:
@@ -68,10 +68,24 @@ class tfidf:
 			if numfiles ==0: #if the word isn't in any of the corpora
 				numfiles = .1 #assume it is important -- might change that later: the word is either important or mispelled 
 			idf = math.log((len(self.allCorpora)/(numfiles)))
+
 			tfidf = tf * idf
+			#print 'tf', tf, "| idf", idf
 
 			tfidfDict[word] = tfidf
 		return tfidfDict
+	
+	def summarize(self, inputText, scores):
+		IDScore = {}
+		sentences = re.split('(?<=[.!?]) +', inputText)
+		for i, j in scores.iteritems():
+			occurances = 0
+			for counter,sentence in enumerate(sentences):
+				occurances = sentence.count(i) #needs to not count words inside of words
+				print counter	
+
+		#sentenceScores = sorted(student_tuples, key=lambda student: student[2])
+		return summary
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
@@ -80,6 +94,10 @@ if __name__=='__main__':
 	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
 	args = parser.parse_args()
 
+	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
+	print "Calculating Score..."
 	scores = program.tf_idf(args.text)
 	print scores
+	summary = program.summarize(args.text, scores)
+	print summary

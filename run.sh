@@ -3,7 +3,8 @@
 
 filename=tf_idf.py
 flag1=-text
-arg1="Hello Irene , Orestis , and Pat"
+#arg1="Hello Irene, Orestis, and Pat"
+arg1="There's a huge chicken in my living room. Another sentence!"
 flag2=-c
 arg2=./CorpusFolder/
 flag3=-tagged
