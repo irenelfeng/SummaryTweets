@@ -3,7 +3,9 @@
 
 filename=tf_idf.py
 flag1=-text
-arg1="Hello Irene, Orestis, and Pat"
+#arg1="Hello Irene, Orestis, and Pat"
+#arg1="There's a huge chicken in my living room. Another sentence!"
+arg1="Hi can not make the game. There are three options. I wish to get rid of one."
 flag2=-c
 arg2=./CorpusFolder/
 flag3=-tagged
