@@ -10,14 +10,14 @@ class tfidf:
 	def __init__(self, corpusDirectory, tagged):
 		self.allCorpora = {} #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = {} 
-		self.testWhatPOS = set()
+		#self.testWhatPOS = set() #pennTreeBank words
 		for filename in os.listdir(corpusDirectory):
 			if filename.endswith(".pos"):
 				if tagged == False:
 					self.wordDictionary(corpusDirectory+str(filename))
 				else:
 					self.taggedWordDictionary(corpusDirectory+str(filename))
-		print self.testWhatPOS
+		#print self.testWhatPOS
 
 
 	def wordDictionary(self, filename): #deprecated 
@@ -29,7 +29,9 @@ class tfidf:
 			line = line.split()
 			for word in line:
 				wordCount[word] +=1
-		print wordCount
+		if '-' in wordCount:
+			print '- in the dictionary'
+		else: print '- not in dictionary'
 		self.allCorpora[filename] = wordCount #adds the corpus to the corpora dictionary
 	
 	def taggedWordDictionary(self, filename):
@@ -43,9 +45,9 @@ class tfidf:
 				m = re.match(r"(?P<word>[\w.,!?()-]+)(\/)(?P<tag>[\w.,!?()-]+)", word) 
 				if m != None:
 					#print m.group('word'), m.group('tag')
-					wordCount[m.group('word')] +=1
-					tagCount[m.group('tag')] +=1
-					self.testWhatPOS.add(m.group('tag'))
+					wordCount[m.group('word').lower()] +=1
+					tagCount[m.group('tag').lower()] +=1
+					#self.testWhatPOS.add(m.group('tag'))
 		self.allCorpora[filename] = wordCount #adds the corpus to the corpora dictionary
 		self.allPoSCorpora[filename] = tagCount #adds the corpus to the corpora dictionary
 
@@ -80,19 +82,6 @@ class tfidf:
 
 			tfidfDict[word] = tfidf
 		return tfidfDict
-	
-	def summarize(self, inputText, scores): #not working
-		IDScore = {}
-		sentences = re.split('(?<=[.!?]) +', inputText)
-		for i, j in enumerate(scores):
-			print i,j
-			occurances = 0
-			for counter,sentence in enumerate(sentences):
-				occurances = sentence.count(j) #needs to not count words inside of words
-			print occurances
-
-		#sentenceScores = sorted(student_tuples, key=lambda student: student[2])
-		return summary
 
 	def topSentences(self, inputText, scores):
 		"""returns the top Sentences by taking the top 10 percent of words"""
@@ -118,7 +107,7 @@ class tfidf:
 		for sentence in sentenceList:
 			tokenized = sentence.split()
 			tags = nltk.pos_tag(tokenized)
-			print tags
+			#print tags
 
 
 		return sentenceList
@@ -128,6 +117,7 @@ class tfidf:
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
+		print inputText
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
 		top_sentences = Counter()
@@ -158,10 +148,10 @@ if __name__=='__main__':
 	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
 	print "Calculating Score..."
+	args.text = args.text.lower() #added to make lowercase
 	scores = program.tf_idf(args.text)
-	# print scores
-	#summary = program.summarize(args.text, scores)
-	# summary = program.topSentences(args.text, scores)
+	print scores
+	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores,5)
-	# print summary
+	#print summary
 	print summary2
