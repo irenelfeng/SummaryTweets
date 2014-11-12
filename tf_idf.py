@@ -18,7 +18,18 @@ class tfidf:
 				else:
 					self.taggedWordDictionary(corpusDirectory+str(filename))
 		print self.testWhatPOS
-
+	
+	def getInputText(self, filename):
+		"""returns the text within a file for summarizing"""
+		try:
+			myfile = open(filename, 'r')
+			text = ''
+			for line in myfile:
+				text = text + line
+			return text
+		except IOError:
+			print 'ERROR: Invalid filename'
+			return False
 
 	def wordDictionary(self, filename): #deprecated 
 		"""returns the file as a dictionary with word counts"""
@@ -120,22 +131,29 @@ class tfidf:
 			tags = nltk.pos_tag(tokenized)
 			print tags
 
-
 		return sentenceList
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
 
-
-
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', type=str, help='corpus', required=True)
-	parser.add_argument('-text', type=str, help='input file', required=True)
+	parser.add_argument('-c', type=str, help='corpus', required=False)
+	parser.add_argument('-text', type=str, help='input text', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
-	parser.add_argument('-file', type=str, help='boolean for input file or not', required=False, default=False)
+	parser.add_argument('-textfile', type=str, help='boolean for input file or not', required=False)
 	args = parser.parse_args()
+
+	if args.text is None and args.textfile is None:
+		print "Either command line text or a text file is required!"
+		args.text = 'This is a placeholder string.'
 
 	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
+	if args.textfile != None:
+		print 'Opening Input Text File...'
+		text = program.getInputText(args.textfile)
+		args.text = text
+		if text == False:
+			print 'we should quit here since there is a file IO error'
 	print "Calculating Score..."
 	print args.text
 	scores = program.tf_idf(args.text)
