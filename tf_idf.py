@@ -5,19 +5,26 @@ import os
 import re
 import collections
 import nltk
+import pickle
 
 class tfidf:
 	def __init__(self, corpusDirectory, tagged):
-		self.allCorpora = {} #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
-		self.allPoSCorpora = {} 
-		self.testWhatPOS = set()
-		for filename in os.listdir(corpusDirectory):
-			if filename.endswith(".pos"):
-				if tagged == False:
-					self.wordDictionary(corpusDirectory+str(filename))
-				else:
-					self.taggedWordDictionary(corpusDirectory+str(filename))
-		print self.testWhatPOS
+		allCorpora = open('allCorpora')
+		allPoSCorpora = open('allPoSCorpora')
+
+		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
+		self.allPoSCorpora = pickle.load(allPoSCorpora)
+		# self.testWhatPOS = set()
+		# for filename in os.listdir(corpusDirectory):
+		# 	if filename.endswith(".pos"):
+		# 		if tagged == False:
+		# 			self.wordDictionary(corpusDirectory+str(filename))
+		# 		else:
+		# 			self.taggedWordDictionary(corpusDirectory+str(filename))
+		# print self.testWhatPOS
+
+		allCorpora.close()
+		allPoSCorpora.close()
 
 
 	def wordDictionary(self, filename): #deprecated 
@@ -136,7 +143,7 @@ class tfidf:
 			words = sentence.split()
 			total_score = 0.0
 			num_words = 0.0
-			if len(sentence) > 1:
+			if len(sentence) > 1: #to avoid single punctuation marks or one-word sentences.
 				for word in words:
 					num_words += 1
 					score = scores[word]
