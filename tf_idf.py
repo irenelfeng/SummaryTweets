@@ -4,17 +4,20 @@ import math
 import os
 import re
 import collections
+import nltk
 
 class tfidf:
 	def __init__(self, corpusDirectory, tagged):
 		self.allCorpora = {} #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = {} 
+		self.testWhatPOS = set()
 		for filename in os.listdir(corpusDirectory):
 			if filename.endswith(".pos"):
 				if tagged == False:
 					self.wordDictionary(corpusDirectory+str(filename))
 				else:
 					self.taggedWordDictionary(corpusDirectory+str(filename))
+		print self.testWhatPOS
 
 
 	def wordDictionary(self, filename): #deprecated 
@@ -37,13 +40,15 @@ class tfidf:
 			"""insert a function to clean up lines"""
 			line = line.split()
 			for word in line:
-				m = re.match(r"(?P<word>[\w.,!?()]+)(\/)(?P<tag>[\w.,!?()]+)", word) 
+				m = re.match(r"(?P<word>[\w.,!?()-]+)(\/)(?P<tag>[\w.,!?()-]+)", word) 
 				if m != None:
 					#print m.group('word'), m.group('tag')
 					wordCount[m.group('word')] +=1
 					tagCount[m.group('tag')] +=1
+					self.testWhatPOS.add(m.group('tag'))
 		self.allCorpora[filename] = wordCount #adds the corpus to the corpora dictionary
 		self.allPoSCorpora[filename] = tagCount #adds the corpus to the corpora dictionary
+
 
 	def tf_idf(self, inputText):
 		"""returns a tf-idf dictionary for each term in inputText"""
@@ -92,23 +97,29 @@ class tfidf:
 	def topSentences(self, inputText, scores):
 		"""returns the top Sentences by taking the top 10 percent of words"""
 		inputText = re.sub('([.,!?()])', r' \1 ', inputText)
-		sentences = re.split('(?<=[.!?]) +', inputText)
+		sentences = re.split('(?<=[.!?-]) +', inputText)
 		sentenceList = []
 
-		numWords = int(math.ceil(float(len(scores))/10))
-		words = []
+		numWords = int(math.ceil(float(len(scores))/10)) #sets numWords to be the top 10 percent of words
+		words = [] #a list of the top words
 		for i in range(0, numWords):
-			maxWord = max(scores.iterkeys(), key=lambda key: scores[key])
+			maxWord = max(scores.iterkeys(), key=lambda key: scores[key]) 
 			print maxWord
 			k= scores.pop(maxWord)
-			words.append((maxWord, k))
+			words.append((maxWord, k)) 
 		print words
+		print inputText
 		#print sorted(words, key=lambda key: words[i])
 		for word, val in words:
 			for sentence in sentences: 
-				sentence = sentence.split()
-				if word in sentence:
-					sentenceList.append(' '.join(sentence))
+				wordList = sentence.split()
+				if word in wordList and sentence not in sentenceList: #if the word is in the sentence and the sentence is not already in the list
+						sentenceList.append(sentence)
+		for sentence in sentenceList:
+			tokenized = sentence.split()
+			tags = nltk.pos_tag(tokenized)
+			print tags
+
 
 		return sentenceList
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
