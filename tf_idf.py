@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 import argparse
 import math
 import os
@@ -124,7 +124,29 @@ class tfidf:
 		return sentenceList
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
 
+	def total_sent_score(self, inputText, scores, num_sentences):
 
+		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
+		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
+		sentences = re.split('(?<=[.!?-]) +', inputText)
+
+		top_sentences = Counter()
+
+		for sentence in sentences:
+			words = sentence.split()
+			total_score = 0.0
+			num_words = 0.0
+			if len(sentence) > 1:
+				for word in words:
+					num_words += 1
+					score = scores[word]
+					total_score += score
+
+				if num_words != 0: top_sentences[sentence] = total_score / num_words
+				# top_sentences[sentence] = total_score
+
+
+ 		return top_sentences.most_common(num_sentences)
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
@@ -137,7 +159,9 @@ if __name__=='__main__':
 	program = tfidf(args.c, args.tagged)
 	print "Calculating Score..."
 	scores = program.tf_idf(args.text)
-	print scores
+	# print scores
 	#summary = program.summarize(args.text, scores)
-	summary = program.topSentences(args.text, scores)
-	print summary
+	# summary = program.topSentences(args.text, scores)
+	summary2 = program.total_sent_score(args.text, scores,5)
+	# print summary
+	print summary2
