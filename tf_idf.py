@@ -120,11 +120,13 @@ if __name__=='__main__':
 	parser.add_argument('-c', type=str, help='corpus', required=True)
 	parser.add_argument('-text', type=str, help='input file', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
+	parser.add_argument('-file', type=str, help='boolean for input file or not', required=False, default=False)
 	args = parser.parse_args()
 
 	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
 	print "Calculating Score..."
+	print args.text
 	scores = program.tf_idf(args.text)
 	print scores
 	#summary = program.summarize(args.text, scores)
