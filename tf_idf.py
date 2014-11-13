@@ -6,6 +6,7 @@ import re
 import collections
 import nltk
 import pickle
+import sys
 
 class tfidf:
 	def __init__(self, corpusDirectory, tagged):
@@ -167,7 +168,7 @@ if __name__=='__main__':
 		text = program.getInputText(args.textfile)
 		args.text = text
 		if text == False:
-			print 'we should quit here since there is a file IO error'
+			sys.exit() #stops program
 	print "Calculating Score..."
 
 	args.text = args.text.lower() #added to make lowercase
