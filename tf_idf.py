@@ -159,7 +159,7 @@ if __name__=='__main__':
 
 	if args.text is None and args.textfile is None:
 		print "Either command line text or a text file is required!"
-		args.text = 'This is a placeholder string.'
+		sys.exit()
 
 	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
