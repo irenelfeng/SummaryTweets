@@ -22,7 +22,7 @@ class tfidf:
 		print self.testWhatPOS
 
 
-	def wordDictionary(self, filename): #deprecated 
+	def wordDictionary(self, filename): 
 		"""returns the file as a dictionary with word counts"""
 		wordCount = defaultdict(int)
 		words = open(str(filename)).readlines()

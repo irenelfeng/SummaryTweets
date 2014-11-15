@@ -11,10 +11,10 @@ import sys
 class tfidf:
 	def __init__(self, corpusDirectory):
 		"""reads corpus files and adds it to allCorpora"""
-		allCorpora = open('allCorpora')
-		allPoSCorpora = open('allPoSCorpora')
+		allCorpora = open('pickl/allCorpora')
+		allPoSCorpora = open('pickl/allPoSCorpora')
 
-		allPhrases = open('allPhrases')
+		allPhrases = open('pickl/allPhrases')
 
 		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = pickle.load(allPoSCorpora)
@@ -129,7 +129,7 @@ class tfidf:
 		return sentenceList
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
 
-	def total_sent_score(self, inputText, scores, num_sentences):
+	def total_sent_score(self, inputText, scores):
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
@@ -214,7 +214,7 @@ if __name__=='__main__':
 	print'\n'
 
 	#summary = program.topSentences(args.text, scores)
-	summary2 = program.total_sent_score(args.text, scores, 5)
+	summary2 = program.total_sent_score(args.text, scores)
 	#print summary
 	#print summary2
 	output = program.compress_sentences(summary2, args.length)
