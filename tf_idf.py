@@ -13,12 +13,16 @@ class tfidf:
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('allCorpora')
 		allPoSCorpora = open('allPoSCorpora')
-		
+
+		allPhrases = open('allPhrases')
+
 		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = pickle.load(allPoSCorpora)
+		self.allPhrases = pickle.load(allPhrases)
 
 		allCorpora.close()
 		allPoSCorpora.close()
+		allPhrases.close()
 	
 	def getInputText(self, filename):
 		"""returns the text within a file for summarizing"""
