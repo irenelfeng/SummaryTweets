@@ -138,21 +138,56 @@ class tfidf:
 			words = sentence.split()
 			total_score = 0.0
 			num_words = 0.0
+			word_list = []
 			if len(sentence) > 1: #to avoid single punctuation marks or one-word sentences.
 				for word in words:
 					num_words += 1
 					total_score += scores[word]
+					word_list.append((word, scores[word]))
 
 				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
-				if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
+				#if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
+				if num_words != 0: top_sentences.append((word_list, total_score / num_words, index))
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
-	def compress_sentences(self, sentences, out_length):
+	def compress_sentences(self, sentences_in_lists, out_length):# compression_dict):
 		"""compresses and returns the sentences within our desired length"""
+		compression_dict = {} #TEMPORARY- CHANGE BEFORE TESTING
+		sentences = []
+		
+		"""compression"""
+		for sent_list in sentences_in_lists:
+			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			bigrams = []
+			first = ('', 0)
+			second = ('', 0)
+			for index, word in enumerate(sent_list[0]):
+				first = second
+				second = word
+				if first[0] == '': continue# or second[0] == '.': continue
+				bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
+			bigrams.sort(key = lambda x:x[1])
+			changes = 0
+			new_sent = []
+			for bigram in bigrams:
+				if changes > max_changes: break
+				if compression_dict.has_key(bigram[0]):
+					bigram = (compression_dict[bigram[0]], bigram[1], bigram[2])
+				new_sent.append(bigram)
+
+			new_sent.sort(key = lambda x:x[2])
+			sentence = ''
+			for i in new_sent:
+				word = i[0].split()
+				sentence += word[0] + ' '
+			sentence += new_sent[len(new_sent)-1][0].split()[1]
+			sentences.append((sentence, sent_list[1], sent_list[2]))
+
+		"""ordering, printing to correct length"""
 		output = []
 		total_length = 0
 		sentences.sort(key = lambda x:x[1], reverse = True)
