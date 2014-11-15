@@ -150,7 +150,7 @@ class tfidf:
 						num_words += 1
 						score = scores[word]
 						total_score += score
-					word_list.append((word, score))
+						word_list.append((word, score))
 
 				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
 				#if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
@@ -161,9 +161,8 @@ class tfidf:
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
-	def compress_sentences(self, sentences_in_lists, out_length):# compression_dict):
+	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
-		compression_dict = {} #TEMPORARY- CHANGE BEFORE TESTING
 		sentences = []
 		
 		"""compression"""
@@ -182,16 +181,22 @@ class tfidf:
 			new_sent = []
 			for bigram in bigrams:
 				if changes > max_changes: break
-				if compression_dict.has_key(bigram[0]):
-					bigram = (compression_dict[bigram[0]], bigram[1], bigram[2])
+				if self.allPhrases.has_key(bigram[0]):
+					#print 'changing', bigram[0], '>>>', self.allPhrases[bigram[0]]
+					bigram = (self.allPhrases[bigram[0]], bigram[1], bigram[2])
 				new_sent.append(bigram)
 
 			new_sent.sort(key = lambda x:x[2])
+			#print new_sent
 			sentence = ''
 			for i in new_sent:
 				word = i[0].split()
 				sentence += word[0] + ' '
-			sentence += new_sent[len(new_sent)-1][0].split()[1]
+			try:
+				sentence += new_sent[len(new_sent)-1][0].split()[1]
+			except IndexError:
+				sentence += '.'
+			sentence += '.'
 			sentences.append((sentence, sent_list[1], sent_list[2]))
 
 		"""ordering, printing to correct length"""
