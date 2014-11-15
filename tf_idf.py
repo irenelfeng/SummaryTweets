@@ -147,9 +147,6 @@ class tfidf:
 						num_words += 1
 						score = scores[word]
 						total_score += score
-				for word in words:
-					num_words += 1
-					total_score += scores[word]
 
 				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
 				if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
