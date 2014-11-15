@@ -128,7 +128,7 @@ class tfidf:
 	def total_sent_score(self, inputText, scores, num_sentences):
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
-		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
+		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
 		print "\nThe input text is:\n", inputText, "\n"
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
