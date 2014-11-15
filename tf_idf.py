@@ -13,7 +13,7 @@ class tfidf:
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('allCorpora')
 		allPoSCorpora = open('allPoSCorpora')
-
+		
 		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = pickle.load(allPoSCorpora)
 
