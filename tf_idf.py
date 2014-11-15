@@ -9,7 +9,7 @@ import pickle
 import sys
 
 class tfidf:
-	def __init__(self, corpusDirectory, tagged):
+	def __init__(self, corpusDirectory):
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('allCorpora')
 		allPoSCorpora = open('allPoSCorpora')
@@ -108,8 +108,8 @@ class tfidf:
 			print maxWord
 			k= scores.pop(maxWord)
 			words.append((maxWord, k)) 
-		print words
-		print inputText
+		#print words
+		#print inputText
 		#print sorted(words, key=lambda key: words[i])
 		for word, val in words:
 			for sentence in sentences: 
@@ -128,7 +128,7 @@ class tfidf:
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
-		print inputText
+		#print inputText
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
 		top_sentences = Counter()
@@ -162,7 +162,7 @@ if __name__=='__main__':
 		sys.exit()
 
 	print "Parsing Corpus..."
-	program = tfidf(args.c, args.tagged)
+	program = tfidf(args.c)
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.getInputText(args.textfile)
@@ -174,7 +174,7 @@ if __name__=='__main__':
 	args.text = args.text.lower() #added to make lowercase
 
 	scores = program.tf_idf(args.text)
-	print scores
+	#print scores
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores,5)
 	#print summary

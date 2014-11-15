@@ -14,7 +14,7 @@ flag2=-c
 arg2=./CorpusFolder/
 flag3=-tagged
 arg3=True
-flag4=-textfile
-arg4=input.txt
+#flag4=
+#arg4=
 
-time python $filename $flag1 "$arg1" $flag2 $arg2 $flag3 $arg3 $flag4 $arg4
+time python $filename $flag1 "$arg1" $flag2 $arg2 $flag3 $arg3 #$flag4 $arg4
