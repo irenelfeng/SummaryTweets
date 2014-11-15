@@ -128,38 +128,66 @@ class tfidf:
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
-		print inputText
+		print "\nThe input text is:\n", inputText, "\n"
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
-		top_sentences = Counter()
+		#top_sentences = Counter()
+		top_sentences = []
 
-		for sentence in sentences:
+		for index, sentence in enumerate(sentences):
 			words = sentence.split()
 			total_score = 0.0
 			num_words = 0.0
 			if len(sentence) > 1: #to avoid single punctuation marks or one-word sentences.
 				for word in words:
 					num_words += 1
-					score = scores[word]
-					total_score += score
+					total_score += scores[word]
 
-				if num_words != 0: top_sentences[sentence] = total_score / num_words
+				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
+				if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
 				# top_sentences[sentence] = total_score
 
+		"""returns all the sentences with a score and index"""
+		return top_sentences 
+		#return top_sentences.most_common(num_sentences)
 
- 		return top_sentences.most_common(num_sentences)
+	def compress_sentences(self, sentences, out_length):
+		"""compresses and returns the sentences within our desired length"""
+		output = []
+		total_length = 0
+		sentences.sort(key = lambda x:x[1], reverse = True)
+
+		for sentence in sentences:
+			length = len(sentence[0]) + 1 #+1 for space before sentences
+			if total_length + length > out_length:
+				break
+			total_length += length
+
+			"""insert sentences in the correct order"""
+			counter = 0
+			for i in range(len(output)): 
+				if output[i][2] < sentence[2]:
+					counter += 1
+			output.insert(counter, sentence)
+
+		"""create the output string"""
+		out_string = ''
+		for i in output:
+			out_string += i[0] + ' '
+		return out_string
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-c', type=str, help='corpus', required=False)
 	parser.add_argument('-text', type=str, help='input text', required=True)
-	parser.add_argument('-tagged', type=str, help='boolean for tagged or not', required=False, default=False)
-	parser.add_argument('-textfile', type=str, help='boolean for input file or not', required=False)
+	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
+	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=140)
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
 		print "Either command line text or a text file is required!"
-		sys.exit()
+		sys.exit() 
 
 	print "Parsing Corpus..."
 	program = tfidf(args.c, args.tagged)
@@ -174,8 +202,10 @@ if __name__=='__main__':
 	args.text = args.text.lower() #added to make lowercase
 
 	scores = program.tf_idf(args.text)
-	print scores
+	#print scores
 	#summary = program.topSentences(args.text, scores)
-	summary2 = program.total_sent_score(args.text, scores,5)
+	summary2 = program.total_sent_score(args.text, scores, 5)
 	#print summary
-	print summary2
+	#print summary2
+	output = program.compress_sentences(summary2, args.length)
+	print output
