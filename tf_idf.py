@@ -9,7 +9,7 @@ import pickle
 import sys
 
 class tfidf:
-	def __init__(self, corpusDirectory, tagged):
+	def __init__(self, corpusDirectory):
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('allCorpora')
 		allPoSCorpora = open('allPoSCorpora')
@@ -110,8 +110,7 @@ class tfidf:
 			# print maxWord
 			k= scores.pop(maxWord)
 			words.append((maxWord, k)) 
-		# print words
-		# print inputText
+
 		#print sorted(words, key=lambda key: words[i])
 		for word, val in words:
 			for sentence in sentences: 
@@ -195,7 +194,7 @@ if __name__=='__main__':
 		sys.exit() 
 
 	print "Parsing Corpus..."
-	program = tfidf(args.c, args.tagged)
+	program = tfidf(args.c)
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.getInputText(args.textfile)
