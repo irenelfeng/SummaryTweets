@@ -13,12 +13,15 @@ class tfidf:
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('allCorpora')
 		allPoSCorpora = open('allPoSCorpora')
+		allPhrases = open('allPhrases')
 
 		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = pickle.load(allPoSCorpora)
+		self.allPhrases = pickle.load(allPhrases)
 
 		allCorpora.close()
 		allPoSCorpora.close()
+		allPhrases.close()
 	
 	def getInputText(self, filename):
 		"""returns the text within a file for summarizing"""
@@ -70,14 +73,16 @@ class tfidf:
 		tfidfDict = {}
 		#create a word Dictionary for the input text
 		inputWordDictionary = defaultdict(int)
-		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #regex code to add a space between punctuation
+		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #regex code to add a space between punctuation
 		inputText = inputText.split()
-		for word in inputText:
+		for w in inputText:
+			word = w.strip("'.,!?;:'*()")
 			inputWordDictionary[word] +=1
 
 		# term frequency * log (# files total / # files with term)
-		for word in inputText:
+		for w in inputText:
 			#print "\n",word
+			word = w.strip("'.,!?;:'*()")
 
 			tf = inputWordDictionary[word]
 			#print "tf", tf
@@ -105,11 +110,10 @@ class tfidf:
 		words = [] #a list of the top words
 		for i in range(0, numWords):
 			maxWord = max(scores.iterkeys(), key=lambda key: scores[key]) 
-			print maxWord
+			# print maxWord
 			k= scores.pop(maxWord)
 			words.append((maxWord, k)) 
-		#print words
-		#print inputText
+
 		#print sorted(words, key=lambda key: words[i])
 		for word, val in words:
 			for sentence in sentences: 
@@ -127,7 +131,7 @@ class tfidf:
 	def total_sent_score(self, inputText, scores, num_sentences):
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
-		inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
+		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
 		print "\nThe input text is:\n", inputText, "\n"
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
@@ -140,10 +144,13 @@ class tfidf:
 			num_words = 0.0
 			word_list = []
 			if len(sentence) > 1: #to avoid single punctuation marks or one-word sentences.
-				for word in words:
-					num_words += 1
-					total_score += scores[word]
-					word_list.append((word, scores[word]))
+				for w in words:
+					if len(w) > 1: #to avoid single punctuation marks.
+						word = w.strip("'.,!?;:'*()")
+						num_words += 1
+						score = scores[word]
+						total_score += score
+					word_list.append((word, score))
 
 				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
 				#if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
@@ -237,7 +244,9 @@ if __name__=='__main__':
 	args.text = args.text.lower() #added to make lowercase
 
 	scores = program.tf_idf(args.text)
-	#print scores
+	print scores
+	print'\n'
+
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores, 5)
 	#print summary
