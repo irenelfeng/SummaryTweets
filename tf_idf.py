@@ -158,6 +158,12 @@ class tfidf:
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
+	def replace_phrases(self, sentences, scores):
+		for sentence in sentences:
+			print sentence
+
+
+
 	def compress_sentences(self, sentences, out_length):
 		"""compresses and returns the sentences within our desired length"""
 		output = []
@@ -215,6 +221,7 @@ if __name__=='__main__':
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores, 5)
 	#print summary
-	#print summary2
-	output = program.compress_sentences(summary2, args.length)
-	print output
+	print summary2
+	shortened = program.replace_phrases(summary2, scores)
+	#output = program.compress_sentences(summary2, args.length)
+	#print output
