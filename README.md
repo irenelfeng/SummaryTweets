@@ -2,11 +2,7 @@ SummaryTweets
 =============
 
 ##Authors
-Irene Feng
-
-Orestis Lykouropoulos
-
-Patrick Xu
+Irene Feng, Orestis Lykouropoulos, Patrick Xu
 
 ##How to Use
 SummaryTweets has been uploaded to the following webpage.
