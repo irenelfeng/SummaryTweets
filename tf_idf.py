@@ -77,11 +77,11 @@ class tfidf:
 
 		#first search for a url, store it and remove it from the input text
 		match = url.grabUrls(inputText)
-		print'url:'
+		#print'url:'
 		#we are assuming only 1 url per input - makes sense in the context of twitter
 		if match: #if there is a link
 			self.url = str(match[0])
-			print self.url
+			#print self.url
 			inputText = inputText.replace(' '+self.url, '')
 
 		tfidfDict = {}
@@ -137,9 +137,9 @@ class tfidf:
 				wordList = sentence.split()
 				if word in wordList and sentence not in sentenceList: #if the word is in the sentence and the sentence is not already in the list
 						sentenceList.append(sentence)
-		for sentence in sentenceList:
-			tokenized = sentence.split()
-			tags = nltk.pos_tag(tokenized)
+		# for sentence in sentenceList:
+		# 	tokenized = sentence.split()
+		# 	tags = nltk.pos_tag(tokenized)
 			#print tags
 
 		return sentenceList
@@ -149,7 +149,7 @@ class tfidf:
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
 
-		print "\nThe input text is:\n", inputText, "\n"
+		#print "\nThe input text is:\n", inputText, "\n"
 
 		#get rid of urls preprocessing
 		if self.url != '': inputText = inputText.replace(' '+self.url, '')
