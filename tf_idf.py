@@ -7,6 +7,7 @@ import collections
 #import nltk
 import pickle
 import sys
+import url #external code to find urls in text
 
 class tfidf:
 	def __init__(self):
@@ -23,6 +24,9 @@ class tfidf:
 		allCorpora.close()
 		allPoSCorpora.close()
 		allPhrases.close()
+
+		#store url, if any
+		self.url = ''
 	
 	def getInputText(self, filename):
 		"""returns the text within a file for summarizing"""
@@ -71,6 +75,15 @@ class tfidf:
 	def tf_idf(self, inputText):
 		"""returns a tf-idf dictionary for each term in inputText"""
 
+		#first search for a url, store it and remove it from the input text
+		match = url.grabUrls(inputText)
+		print'url:'
+		#we are assuming only 1 url per input - makes sense in the context of twitter
+		if match: #if there is a link
+			self.url = str(match[0])
+			print self.url
+			inputText = inputText.replace(' '+self.url, '')
+
 		tfidfDict = {}
 		#create a word Dictionary for the input text
 		inputWordDictionary = defaultdict(int)
@@ -107,6 +120,9 @@ class tfidf:
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 		sentenceList = []
 
+		#delete any urls (urls are still stored for later)
+		if self.url != '': inputText = inputText.replace(' '+self.url, '')
+
 		numWords = int(math.ceil(float(len(scores))/10)) #sets numWords to be the top 10 percent of words
 		words = [] #a list of the top words
 		for i in range(0, numWords):
@@ -130,10 +146,14 @@ class tfidf:
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
 
 	def total_sent_score(self, inputText, scores):
-
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
-		#print "\nThe input text is:\n", inputText, "\n"
+
+		print "\nThe input text is:\n", inputText, "\n"
+
+		#get rid of urls preprocessing
+		if self.url != '': inputText = inputText.replace(' '+self.url, '')
+
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
 		#top_sentences = Counter()
@@ -221,7 +241,7 @@ class tfidf:
 		for sentence in sentences:
 			length = len(sentence[0]) + 1 #+1 for space before sentences
 			if total_length + length > out_length:
-				break
+				continue
 			total_length += length
 
 			"""insert sentences in the correct order"""
@@ -235,6 +255,8 @@ class tfidf:
 		out_string = ''
 		for i in output:
 			out_string += i[0] + ' '
+		out_string +=self.url
+
 		return out_string
 
 if __name__=='__main__':
@@ -243,7 +265,7 @@ if __name__=='__main__':
 	parser.add_argument('-text', type=str, help='input text', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=135) #135 to make room for #CS73 hashtag
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=111) #140 for twitter, -6 for #CS73 hashtag+space, -23 for link+space(twitter condenses all links to max 22 characters)
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
@@ -271,7 +293,6 @@ if __name__=='__main__':
 	#print summary
 	#print summary2
 	output = program.compress_sentences(summary2, args.length)
-	print 'The output is'
-	print output
+
 	print 'The output text is:'
 	print output
