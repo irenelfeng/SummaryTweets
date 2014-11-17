@@ -4,13 +4,13 @@ import math
 import os
 import re
 import collections
-import nltk
+#import nltk
 import pickle
 import sys
 import url #external code to find urls in text
 
 class tfidf:
-	def __init__(self, corpusDirectory):
+	def __init__(self):
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('pickl/allCorpora')
 		allPoSCorpora = open('pickl/allPoSCorpora')
@@ -151,6 +151,7 @@ class tfidf:
 	def total_sent_score(self, inputText, scores):
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
+
 		print "\nThe input text is:\n", inputText, "\n"
 
 		#get rid of urls preprocessing
@@ -256,7 +257,8 @@ class tfidf:
 		"""create the output string"""
 		out_string = ''
 		for i in output:
-			out_string += i[0] + ' '
+			sent = str(i[0]).capitalize()
+			out_string += sent + ' '
 		out_string +=self.url
 
 		return out_string
@@ -275,7 +277,7 @@ if __name__=='__main__':
 		sys.exit() 
 
 	print "Parsing Corpus..."
-	program = tfidf(args.c)
+	program = tfidf()
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.getInputText(args.textfile)
@@ -295,7 +297,7 @@ if __name__=='__main__':
 	#print summary
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
-	else: length = arg.length
+	else: length = args.length
 	output = program.compress_sentences(summary2, length)
 
 	print 'The output text is:'
