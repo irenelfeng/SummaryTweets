@@ -221,7 +221,7 @@ class tfidf:
 		for sentence in sentences:
 			length = len(sentence[0]) + 1 #+1 for space before sentences
 			if total_length + length > out_length:
-				break
+				continue
 			total_length += length
 
 			"""insert sentences in the correct order"""
@@ -243,7 +243,7 @@ if __name__=='__main__':
 	parser.add_argument('-text', type=str, help='input text', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=135) #135 to make room for #CS73 hashtag
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=134) #135 to make room for #CS73 hashtag
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
