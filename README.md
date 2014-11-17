@@ -3,7 +3,9 @@ SummaryTweets
 
 ##Authors
 Irene Feng
+
 Orestis Lykouropoulos
+
 Patrick Xu
 
 ##How to Use
