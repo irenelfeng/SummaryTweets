@@ -177,15 +177,18 @@ class tfidf:
 				second = word
 				if first[0] == '': continue# or second[0] == '.': continue
 				bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
-				print bigrams
 			bigrams.sort(key = lambda x:x[1])
 			changes = 0
 			new_sent = []
+
+			seen = [] #list of indices of bigrams changed
+
 			for bigram in bigrams:
 				if changes > max_changes: break
 				if bigram[0] in self.allPhrases:
 					#print 'changing', bigram[0], '>>>', self.allPhrases[bigram[0]]
 					bigram = (self.allPhrases[bigram[0]], bigram[1], bigram[2])
+					seen.append(bigram[2]) #remember that this bigram was changed
 					changes += 1
 				new_sent.append(bigram)
 
@@ -193,6 +196,7 @@ class tfidf:
 			#print new_sent
 			sentence = ''
 			for i in new_sent:
+				if i[2]-1 in seen and not i[2] in seen: continue
 				word = i[0].split()
 				sentence += word[0] + ' '
 			try:
@@ -200,6 +204,7 @@ class tfidf:
 			except IndexError:
 				sentence += '.'
 			sentence += '.'
+			print sentence
 			sentences.append((sentence, sent_list[1], sent_list[2]))
 
 		"""ordering, printing to correct length"""
@@ -232,7 +237,7 @@ if __name__=='__main__':
 	parser.add_argument('-text', type=str, help='input text', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=140)
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=135) #135 to make room for #CS73 hashtag
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
