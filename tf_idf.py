@@ -9,7 +9,7 @@ import pickle
 import sys
 
 class tfidf:
-	def __init__(self, corpusDirectory):
+	def __init__(self):
 		"""reads corpus files and adds it to allCorpora"""
 		allCorpora = open('pickl/allCorpora')
 		allPoSCorpora = open('pickl/allPoSCorpora')
@@ -251,7 +251,7 @@ if __name__=='__main__':
 		sys.exit() 
 
 	print "Parsing Corpus..."
-	program = tfidf(args.c)
+	program = tfidf()
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.getInputText(args.textfile)
@@ -269,16 +269,9 @@ if __name__=='__main__':
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores)
 	#print summary
-<<<<<<< HEAD
-	print summary2
-	shortened = program.replace_phrases(summary2, scores)
-	#output = program.compress_sentences(summary2, args.length)
-	#print output
-=======
 	#print summary2
 	output = program.compress_sentences(summary2, args.length)
 	print 'The output is'
 	print output
 	print 'The output text is:'
 	print output
->>>>>>> d8671cb5906dcfd04445331b032977365c44d7d1
