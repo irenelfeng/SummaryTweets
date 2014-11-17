@@ -223,15 +223,17 @@ class tfidf:
 			new_sent.sort(key = lambda x:x[2])
 			#print new_sent
 			sentence = ''
-			for i in new_sent:
-
+			for ind,i in enumerate(new_sent):
 				if i[2]-1 in seen and not i[2] in seen: continue
 				word = i[0].split()
-				sentence += word[0] + ' '
+				sentence += word[0]
+				if ind < len(new_sent):
+					print "smaller"
+					sentence += ' '
 			try:
 				sentence += new_sent[len(new_sent)-1][0].split()[1]
 			except IndexError:
-				sentence += '.'
+				sentence += ''
 			sentence += '.'
 
 			sentences.append((sentence, sent_list[1], sent_list[2]))
@@ -242,6 +244,7 @@ class tfidf:
 		sentences.sort(key = lambda x:x[1], reverse = True)
 
 		for sentence in sentences:
+			print sentence
 			length = len(sentence[0]) + 1 #+1 for space before sentences
 			if total_length + length > out_length:
 				continue
