@@ -7,11 +7,11 @@ import tf_idf
 import cgi
 
 print "Content-type: text/html"
-print 
+
 print "<html><head>"
 print "<title>Web Interface Summary Tweets"
 print "</title>"
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/layout.css\">"
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.cs.dartmouth.edu/~ifeng/styles/layout.css\">"
 print "<style>"
 print ".box{height: 550px; float: left; border: 1px solid #cdcdcd; padding: 10px;}"
 print "</style>"
@@ -47,12 +47,16 @@ program = tf_idf.tfidf("CorpusFolder/")
 textbox = textbox.lower()
 
 print "<div class=\"box\" style=\"width: 55%; margin-left: 5px;\">"
-print "<h3>Results</h3>"
+print "<h2>Results</h2>"
 scores = program.tf_idf(textbox)
 #summary = program.topSentences(args.text, scores)
-summary2 = program.total_sent_score(textbox, scores,5)
+summary2 = program.total_sent_score(textbox, scores)
 #print summary
-print summary2
+#print summary2
+print "<textarea rows=\"25\" cols=\"70\" name=\"summary2\">"
+print str(summary2)+"</textarea><p>"
+#done = program.compress_sentences(summary2, 140)
+
 print "</div>"
 print "<div style=\"clear: both;\"></div>"
 print "</body></html>"
