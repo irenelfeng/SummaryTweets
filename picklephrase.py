@@ -14,7 +14,7 @@ if __name__=='__main__':
 	#paraphrase2 = open('ppdb-1.0-s-lexical', 'r')
 	phrase_dict = {} #maybe dictionary of tuples later
 	testPos = set()
-	for filename in glob.glob('ppdb-*'):
+	for filename in glob.glob('pickl/ppdb-*'):
 		paraphrase = open(filename, 'r')
 		for line in paraphrase:
 			line = line.split('|||')
@@ -34,7 +34,7 @@ if __name__=='__main__':
 			testPos.add(line[0])
 		paraphrase.close()
 	#print testPos
-	pickl('allPhrases')
-	pickled = open('allPhrases', 'r')
+	pickl('pickl/allPhrases')
+	pickled = open('pickl/allPhrases', 'r')
 	phrases = pickle.load(pickled)
 	#print phrases
