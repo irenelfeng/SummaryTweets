@@ -210,12 +210,13 @@ if __name__=='__main__':
 	args.text = args.text.lower() #added to make lowercase
 
 	scores = program.tf_idf(args.text)
-	print scores
-	print'\n'
+	# print scores
+	# print'\n'
 
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores)
 	#print summary
 	#print summary2
 	output = program.compress_sentences(summary2, args.length)
+	print 'The output is'
 	print output
