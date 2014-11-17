@@ -4,16 +4,17 @@ import math
 import os
 import re
 import collections
-import nltk
+#import nltk
 import pickle
 import sys
 
 class tfidf:
 	def __init__(self, corpusDirectory):
 		"""reads corpus files and adds it to allCorpora"""
-		allCorpora = open('allCorpora')
-		allPoSCorpora = open('allPoSCorpora')
-		allPhrases = open('allPhrases')
+		allCorpora = open('pickl/allCorpora')
+		allPoSCorpora = open('pickl/allPoSCorpora')
+
+		allPhrases = open('pickl/allPhrases')
 
 		self.allCorpora = pickle.load(allCorpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		self.allPoSCorpora = pickle.load(allPoSCorpora)
@@ -128,11 +129,11 @@ class tfidf:
 		return sentenceList
 		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
 
-	def total_sent_score(self, inputText, scores, num_sentences):
+	def total_sent_score(self, inputText, scores):
 
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# inputText = re.sub('([.,!?()])', r' \1 ', inputText) #I took these two lines from topSentences
-		print "\nThe input text is:\n", inputText, "\n"
+		#print "\nThe input text is:\n", inputText, "\n"
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
 		#top_sentences = Counter()
@@ -142,6 +143,7 @@ class tfidf:
 			words = sentence.split()
 			total_score = 0.0
 			num_words = 0.0
+			word_list = []
 			if len(sentence) > 1: #to avoid single punctuation marks or one-word sentences.
 				for w in words:
 					if len(w) > 1: #to avoid single punctuation marks.
@@ -149,23 +151,56 @@ class tfidf:
 						num_words += 1
 						score = scores[word]
 						total_score += score
+						word_list.append((word, score))
 
 				#if num_words != 0: top_sentences[sentence] = (total_score / num_words, index)
-				if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
+				#if num_words != 0: top_sentences.append((sentence, total_score / num_words, index))
+				if num_words != 0: top_sentences.append((word_list, total_score / num_words, index))
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
-	def replace_phrases(self, sentences, scores):
-		for sentence in sentences:
-			print sentence
-
-
-
-	def compress_sentences(self, sentences, out_length):
+	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
+		sentences = []
+		
+		"""compression"""
+		for sent_list in sentences_in_lists:
+			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			bigrams = []
+			first = ('', 0)
+			second = ('', 0)
+			for index, word in enumerate(sent_list[0]):
+				first = second
+				second = word
+				if first[0] == '': continue# or second[0] == '.': continue
+				bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
+			bigrams.sort(key = lambda x:x[1])
+			changes = 0
+			new_sent = []
+			for bigram in bigrams:
+				if changes > max_changes: break
+				if self.allPhrases.has_key(bigram[0]):
+					#print 'changing', bigram[0], '>>>', self.allPhrases[bigram[0]]
+					bigram = (self.allPhrases[bigram[0]], bigram[1], bigram[2])
+				new_sent.append(bigram)
+
+			new_sent.sort(key = lambda x:x[2])
+			#print new_sent
+			sentence = ''
+			for i in new_sent:
+				word = i[0].split()
+				sentence += word[0] + ' '
+			try:
+				sentence += new_sent[len(new_sent)-1][0].split()[1]
+			except IndexError:
+				sentence += '.'
+			sentence += '.'
+			sentences.append((sentence, sent_list[1], sent_list[2]))
+
+		"""ordering, printing to correct length"""
 		output = []
 		total_length = 0
 		sentences.sort(key = lambda x:x[1], reverse = True)
@@ -219,7 +254,7 @@ if __name__=='__main__':
 	print'\n'
 
 	#summary = program.topSentences(args.text, scores)
-	summary2 = program.total_sent_score(args.text, scores, 5)
+	summary2 = program.total_sent_score(args.text, scores)
 	#print summary
 	print summary2
 	shortened = program.replace_phrases(summary2, scores)
