@@ -27,6 +27,9 @@ class tfidf:
 
 		#store url, if any
 		self.url = ''
+
+	def has_url(self):
+		return self.url != ''
 	
 	def getInputText(self, filename):
 		"""returns the text within a file for summarizing"""
@@ -79,7 +82,7 @@ class tfidf:
 		match = url.grabUrls(inputText)
 		#print'url:'
 		#we are assuming only 1 url per input - makes sense in the context of twitter
-		if match: #if there is a link
+		if match: #if there is a url
 			self.url = str(match[0])
 			#print self.url
 			inputText = inputText.replace(' '+self.url, '')
@@ -121,7 +124,7 @@ class tfidf:
 		sentenceList = []
 
 		#delete any urls (urls are still stored for later)
-		if self.url != '': inputText = inputText.replace(' '+self.url, '')
+		if self.has_url(): inputText = inputText.replace(' '+self.url, '')
 
 		numWords = int(math.ceil(float(len(scores))/10)) #sets numWords to be the top 10 percent of words
 		words = [] #a list of the top words
@@ -152,7 +155,7 @@ class tfidf:
 		#print "\nThe input text is:\n", inputText, "\n"
 
 		#get rid of urls preprocessing
-		if self.url != '': inputText = inputText.replace(' '+self.url, '')
+		if self.has_url(): inputText = inputText.replace(' '+self.url, '')
 
 		sentences = re.split('(?<=[.!?-]) +', inputText)
 
@@ -254,7 +257,8 @@ class tfidf:
 		"""create the output string"""
 		out_string = ''
 		for i in output:
-			out_string += i[0] + ' '
+			sent = str(i[0]).capitalize()
+			out_string += sent + ' '
 		out_string +=self.url
 
 		return out_string
@@ -265,7 +269,7 @@ if __name__=='__main__':
 	parser.add_argument('-text', type=str, help='input text', required=True)
 	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=111) #140 for twitter, -6 for #CS73 hashtag+space, -23 for link+space(twitter condenses all links to max 22 characters)
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=134) #140 for twitter, -6 for #CS73 hashtag+space
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
@@ -292,7 +296,9 @@ if __name__=='__main__':
 	summary2 = program.total_sent_score(args.text, scores)
 	#print summary
 	#print summary2
-	output = program.compress_sentences(summary2, args.length)
+	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
+	else: length = args.length
+	output = program.compress_sentences(summary2, length)
 
 	print 'The output text is:'
 	print output
