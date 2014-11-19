@@ -10,8 +10,6 @@ def pickl(filename1):
 
 		print "Done!"
 if __name__=='__main__':
-	#paraphrase = open('ppdb-o2m-bigrams', 'r')
-	#paraphrase2 = open('ppdb-1.0-s-lexical', 'r')
 	phrase_dict = {} #maybe dictionary of tuples later
 	testPos = set()
 	for filename in glob.glob('pickl/ppdb-*'):
