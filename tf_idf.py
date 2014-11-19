@@ -4,10 +4,10 @@ import math
 import os
 import re
 import collections
-#import nltk
 import pickle
 import sys
 import url #external code to find urls in text
+import parse_compress #external code to parse sentences and delete based on 
 
 class tfidf:
 	def __init__(self):
@@ -182,8 +182,18 @@ class tfidf:
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
+		#print top_sentences
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
+		
+	def delete_phrases(self, sentences_in_lists, inputText):
+		"""deletes words and (like total_sent_score) returns sentences with score and index"""
+		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
+		#parse_compress.drop_phrases(sentences_in_lists, inputText)
+		print "before: {0}".format(sentences_in_lists)
+		parse_compress.simple_drop(sentences_in_lists, inputText, scores)
+		print "after: {0}".format(sentences_in_lists)
+
 
 	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
@@ -228,7 +238,6 @@ class tfidf:
 				word = i[0].split()
 				sentence += word[0]
 				if ind < len(new_sent):
-					print "smaller"
 					sentence += ' '
 			try:
 				sentence += new_sent[len(new_sent)-1][0].split()[1]
@@ -244,7 +253,7 @@ class tfidf:
 		sentences.sort(key = lambda x:x[1], reverse = True)
 
 		for sentence in sentences:
-			print sentence
+			#print sentence
 			length = len(sentence[0]) + 1 #+1 for space before sentences
 			if total_length + length > out_length:
 				continue
@@ -297,6 +306,7 @@ if __name__=='__main__':
 
 	#summary = program.topSentences(args.text, scores)
 	summary2 = program.total_sent_score(args.text, scores)
+	program.delete_phrases(summary2, args.text)
 	#print summary
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
