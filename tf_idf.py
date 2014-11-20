@@ -108,7 +108,7 @@ class tfidf:
 				if word in self.allCorpora[corpus]:
 					numfiles +=1
 			if numfiles ==0: #if the word isn't in any of the corpora
-				numfiles = .1 #assume it is important -- might change that later: the word is either important or mispelled 
+				numfiles = .1 #assume it is important
 			idf = math.log((len(self.allCorpora)/(numfiles)))
 
 			tfidf = tf * idf
@@ -185,7 +185,7 @@ class tfidf:
 		#print top_sentences
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
-		
+
 	def delete_phrases(self, sentences_in_lists, inputText):
 		"""deletes words and (like total_sent_score) returns sentences with score and index"""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
@@ -311,6 +311,7 @@ if __name__=='__main__':
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
+	print length
 	output = program.compress_sentences(summary2, length)
 
 	print 'The output text is:'

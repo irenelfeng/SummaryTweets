@@ -5,6 +5,7 @@ import numpy
 
 nouns = ['NN','NNS','NNP','NNPS']
 adverbs = ['RB','RBR','RBS']
+adjs = ['JJ','JJR','JJS']
 nodrop = ['not','never']
 
 def drop_phrases(sentences, text):
@@ -25,7 +26,7 @@ def simple_drop(sentences, text, scores):
 		POS = nltk.pos_tag(tokenized)
 		print POS
 		for i, word_tuple in enumerate(sentence[0]):
-			if POS[i][1] == 'JJ': #if adj
+			if POS[i][1] in adjs: #if adj
 				#if the word coming after the adjective is a noun and the adj is not important by tf_idf, delete it
 				if i < len(sentence[0])-1 and POS[i+1][1] in nouns and word_tuple[1]<= score and word_tuple[0] not in nodrop:
 					sentence[0].remove(word_tuple)
