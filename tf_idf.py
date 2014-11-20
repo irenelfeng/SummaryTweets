@@ -286,6 +286,8 @@ if __name__=='__main__':
 
 	scores = program.tf_idf(args.text)
 	# print scores
+	for i in scores:
+		print i, scores[i]
 	# print'\n'
 
 	#summary = program.topSentences(args.text, scores)
