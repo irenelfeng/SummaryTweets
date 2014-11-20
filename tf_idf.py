@@ -11,9 +11,9 @@ import parse_compress #code to parse sentences and delete based on
 
 class tfidf:
 	def __init__(self):
-		"""reads corpus files and adds it to all_corpora"""
+		"""open and load pickl files containing dictionary"""
 		all_corpora = open('pickl/allCorpora')
-		all_pos_corpora = open('pickl/allPosCorpora')
+		all_pos_corpora = open('pickl/allPoSCorpora')
 
 		all_phrases = open('pickl/allPhrases')
 
@@ -179,7 +179,7 @@ class tfidf:
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
-		print top_sentences
+			#print top_sentences
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 		
@@ -187,16 +187,24 @@ class tfidf:
 		"""deletes words and (like total_sent_score) returns sentences with score and index"""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
 		#parse_compress.drop_phrases(sentences_in_lists, input_text)
-		print "before: {0}".format(sentences_in_lists)
+		#print "before: {0}".format(sentences_in_lists)
 		parse_compress.simple_drop(sentences_in_lists, input_text, scores)
-		print "after: {0}".format(sentences_in_lists)
+		#print "after: {0}".format(sentences_in_lists)
 
 
 	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
 		sentences = []
+
+		"""unigram compression"""
+		for sent_list in sentences_in_lists:
+			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			changes = 0
+			new_sent = []
+			#for word in sent_list:
+				#print word
 		
-		"""compression"""
+		"""bigram compression"""
 		for sent_list in sentences_in_lists:
 			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
 			bigrams = []
@@ -297,8 +305,6 @@ if __name__=='__main__':
 
 	scores = program.tf_idf(args.text)
 	# print scores
-	for i in scores:
-		print i, scores[i]
 	# print'\n'
 
 	#summary = program.top_sentences(args.text, scores)
