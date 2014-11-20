@@ -23,7 +23,7 @@ def simple_drop(sentences, text, scores):
 	for sentence in sentences:
 		tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
 		POS = nltk.pos_tag(tokenized)
-		print POS
+		#print POS
 		for i, word_tuple in enumerate(sentence[0]):
 			if POS[i][1] == 'JJ': #if adj
 				#if the word coming after the adjective is a noun and the adj is not important by tf_idf, delete it
