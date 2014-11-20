@@ -199,47 +199,60 @@ class tfidf:
 		"""unigram compression"""
 		for sent_list in sentences_in_lists:
 			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			unigrams = []
 			changes = 0
 			new_sent = []
-			#for word in sent_list:
-				#print word
-		
-		"""bigram compression"""
-		for sent_list in sentences_in_lists:
-			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
-			bigrams = []
-			first = ('', 0)
-			second = ('', 0)
 			for index, word in enumerate(sent_list[0]):
-				first = second
-				second = word
-				if first[0] == '': continue# or second[0] == '.': continue
-				bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
-			bigrams.sort(key = lambda x:x[1])
-			changes = 0
-			new_sent = []
-			for bigram in bigrams:
-				if changes > max_changes: break
-				if self.all_phrases.has_key(bigram[0]):
-					#print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-
+				if word[0] == '': continue
+				unigrams.append((word[0], word[1], index))
+			unigrams.sort(key = lambda x:x[1]) #sort based on score
 			seen = [] #list of indices of bigrams changed
-
-			for bigram in bigrams:
+			for unigram in unigrams:
 				if changes > max_changes: break
-				if bigram[0] in self.all_phrases:
-					#print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-					seen.append(bigram[2]) #remember that this bigram was changed
+				if unigram[0] in self.all_phrases:
+					print 'changing', unigram[0], '>>>', self.all_phrases[unigram[0]]
+					unigram = (self.all_phrases[unigram[0]], unigram[1], unigram[2])
 					changes += 1
-				new_sent.append(bigram)
+					seen.append(unigram[2]) #remember that this bigram was changed
+				new_sent.append(unigram)
+
+		#"""bigram compression"""
+		#for sent_list in sentences_in_lists:
+			#max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			#bigrams = []
+			#first = ('', 0)
+			#second = ('', 0)
+			#for index, word in enumerate(sent_list[0]):
+				#first = second
+				#second = word
+				#if first[0] == '': continue# or second[0] == '.': continue
+				#bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
+			#bigrams.sort(key = lambda x:x[1])
+			#changes = 0
+			#new_sent = []
+			#for bigram in bigrams:
+				#if changes > max_changes: break
+				#if self.all_phrases.has_key(bigram[0]):
+					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
+					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
+
+			#seen = [] #list of indices of bigrams changed
+
+			#for bigram in bigrams:
+				#if changes > max_changes: break
+				#if bigram[0] in self.all_phrases:
+					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
+					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
+					#seen.append(bigram[2]) #remember that this bigram was changed
+					#changes += 1
+				#new_sent.append(bigram)
 
 			new_sent.sort(key = lambda x:x[2])
 			#print new_sent
 			sentence = ''
 			for ind,i in enumerate(new_sent):
-				if i[2]-1 in seen and not i[2] in seen: continue
+				#ADD BACK IN IF USING BIGRAMS
+				#if i[2]-1 in seen and not i[2] in seen: continue 
 				word = i[0].split()
 				sentence += word[0]
 				if ind < len(new_sent):
