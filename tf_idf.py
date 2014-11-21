@@ -13,16 +13,17 @@ class tfidf:
 	def __init__(self):
 		"""open and load pickl files containing dictionary"""
 		all_corpora = open('pickl/allCorpora')
+
 		all_pos_corpora = open('pickl/allPoSCorpora')
 
 		all_phrases = open('pickl/allPhrases')
 
 		self.all_corpora = pickle.load(all_corpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
-		self.all_pos_corpora = pickle.load(all_pos_corpora)
+		#self.all_pos_corpora = pickle.load(all_pos_corpora)
 		self.all_phrases = pickle.load(all_phrases)
 
 		all_corpora.close()
-		all_pos_corpora.close()
+		#all_pos_corpora.close()
 		all_phrases.close()
 
 		#store url, if any
@@ -43,48 +44,22 @@ class tfidf:
 			print 'ERROR: Invalid filename'
 			return False
 
-	#when making the dictionary we used lowercase on all the input so everything is lowercase - but now if we use the code it will not be. Idk if that's something we shoulld worry about though
-	def word_dictionary(self, filename): #deprecated 
-		"""returns the file as a dictionary with word counts"""
-		word_count = defaultdict(int)
-		words = open(str(filename)).readlines()
-		for line in words:
-			"""insert a function to clean up lines"""
-			line = line.split()
-			for word in line:
-				word_count[word] +=1
-		if '-' in word_count:
-			print '- in the dictionary'
-		else: print '- not in dictionary'
-		self.all_corpora[filename] = word_count #adds the corpus to the corpora dictionary
-	
-	def tagged_word_dictionary(self, filename):
-		word_count = defaultdict(int)
-		tag_count = defaultdict(int)
-		words = open(str(filename)).readlines()
-		for line in words:
-			"""insert a function to clean up lines"""
-			line = line.split()
-			for word in line:
-				m = re.m(r"(?P<word>[\w.,!?()-]+)(\/)(?P<tag>[\w.,!?()-]+)", word) 
-				if m != None:
-					#print m.group('word'), m.group('tag')
-					word_count[m.group('word').lower()] +=1
-					tag_count[m.group('tag').lower()] +=1
-					#self.testWhatPOS.add(m.group('tag'))
-		self.all_corpora[filename] = word_count #adds the corpus to the corpora dictionary
-		self.all_pos_corpora[filename] = tag_count #adds the corpus to the corpora dictionary
-
-
-	def tf_idf(self, input_text):
-		"""returns a tf-idf dictionary for each term in input_text"""
-
+	def read_input_text(self, input_text):
+		"""preprocesses the input_text. removes and stores the url, and also fixes any ascii character bugs"""
 		#first search for a url, store it and remove it from the input text
-		m = re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', input_text) #we are assuming only 1 url per input - makes sense in the context of twitter
+		m = re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[~$-_@.&#+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', input_text) #we are assuming only 1 url per input - makes sense in the context of twitter
 		if m: #if there is a url
 			self.url = str(m.group(0))
 			#print self.url
-			input_text = input_text.replace(' '+self.url, '')
+			input_text = input_text.replace(self.url, '')
+		tree_tags = parse_compress.tag(input_text) #maybe move somewhere else in the end
+
+		###for orestis for ascii characters
+
+		return input_text
+
+	def tf_idf(self, input_text):
+		"""returns a tf-idf dictionary for each term in input_text"""
 
 		tfidf_dict = {}
 		#create a word Dictionary for the input text
@@ -102,12 +77,13 @@ class tfidf:
 
 			tf = input_word_dictionary[string.lower(word)]
 			#print "tf", tf
+
 			num_files = 0
 			for corpus in self.all_corpora:
-				if string.lower(word) in self.all_corpora[corpus]:
+				if word in self.all_corpora[corpus]:
 					num_files +=1
 			if num_files ==0: #if the word isn't in any of the corpora
-				num_files = .1 #assume it is important -- might change that later: the word is either important or mispelled 
+				num_files = .1 #assume it is important
 			idf = math.log((len(self.all_corpora)/(num_files)))
 
 			tfidf = tf * idf
@@ -153,9 +129,6 @@ class tfidf:
 
 		#print "\nThe input text is:\n", input_text, "\n"
 
-		#get rid of urls preprocessing
-		if self.has_url(): input_text = input_text.replace(' '+self.url, '')
-
 		sentences = re.split('(?<=[.!?-]) +', input_text)
 
 		#top_sentences = Counter()
@@ -179,18 +152,34 @@ class tfidf:
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
-			#print top_sentences
+
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
+
 		
-	def delete_phrases(self, sentences_in_lists, input_text):
+	def delete_phrases(self, sentences_in_lists, input_text, scores):
+
 		"""deletes words and (like total_sent_score) returns sentences with score and index"""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
-		#parse_compress.drop_phrases(sentences_in_lists, input_text)
+
 		#print "before: {0}".format(sentences_in_lists)
 		parse_compress.simple_drop(sentences_in_lists, input_text, scores)
 		#print "after: {0}".format(sentences_in_lists)
 
+	def get_dictionary_paraphrase(self, unigram): 
+		"""short method just to keep punctuation and capitalization uniform after searching through dictionary"""
+		r_punc = ''
+		l_punc = ''
+		if unigram.rstrip(".'.,!?;:'*)]") != unigram: #if there exists a punctuation on the right
+			r_punc = unigram[-1]
+		if unigram.lstrip(".'.,!?;:'*([") != unigram: #if there exists a punctuation on the left
+			l_punc = unigram[-1]
+		new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
+
+		if unigram[0].lower() != unigram[0]: #check if capitalized
+			new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
+		new_unigram = l_punc + new_unigram + r_punc
+		return new_unigram
 
 	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
@@ -198,7 +187,7 @@ class tfidf:
 
 		"""unigram compression"""
 		for sent_list in sentences_in_lists:
-			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make in each sentence
 			unigrams = []
 			changes = 0
 			new_sent = []
@@ -208,10 +197,11 @@ class tfidf:
 			unigrams.sort(key = lambda x:x[1]) #sort based on score
 			seen = [] #list of indices of bigrams changed
 			for unigram in unigrams:
+				#print unigram
 				if changes > max_changes: break
-				if unigram[0] in self.all_phrases:
-					print 'changing', unigram[0], '>>>', self.all_phrases[unigram[0]]
-					unigram = (self.all_phrases[unigram[0]], unigram[1], unigram[2])
+				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
+				if unigram_uniform in self.all_phrases:
+					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1], unigram[2])
 					changes += 1
 					seen.append(unigram[2]) #remember that this bigram was changed
 				new_sent.append(unigram)
@@ -246,15 +236,14 @@ class tfidf:
 					#seen.append(bigram[2]) #remember that this bigram was changed
 					#changes += 1
 				#new_sent.append(bigram)
-
 			new_sent.sort(key = lambda x:x[2])
 			#print new_sent
 			sentence = ''
 			for ind,i in enumerate(new_sent):
 				#ADD BACK IN IF USING BIGRAMS
 				#if i[2]-1 in seen and not i[2] in seen: continue 
-				word = i[0].split()
-				sentence += word[0]
+				word = i[0]
+				sentence += word
 				if ind < len(new_sent):
 					sentence += ' '
 			try:	
@@ -286,16 +275,15 @@ class tfidf:
 		"""create the output string"""
 		out_string = ''
 		for i in output:
-			out_string += i[0] + ' '
+			print i[0]
+			out_string += i[0]
 		out_string +=self.url
 
 		return out_string
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', type=str, help='corpus', required=False)
-	parser.add_argument('-text', type=str, help='input text', required=True)
-	parser.add_argument('-tagged', type=str, help='boolean if corpus is tagged', required=False, default=False)
+	parser.add_argument('-text', type=str, help='input text', required=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
 	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=134) #140 for twitter, -6 for #CS73 hashtag+space
 	args = parser.parse_args()
@@ -311,22 +299,24 @@ if __name__=='__main__':
 		text = program.get_input_text(args.textfile)
 		args.text = text
 		if text == False:
-			sys.exit() #stops program
+			sys.exit() 
 	print "Calculating Score..."
 
 	# args.text = args.text.lower() #added to make lowercase
 
-	scores = program.tf_idf(args.text)
+	processed_text = program.read_input_text(args.text)
+	scores = program.tf_idf(processed_text)
 	# print scores
 	# print'\n'
 
 	#summary = program.top_sentences(args.text, scores)
-	summary2 = program.total_sent_score(args.text, scores)
-	program.delete_phrases(summary2, args.text)
+	summary2 = program.total_sent_score(processed_text, scores)
+	program.delete_phrases(summary2, processed_text, scores)
 	#print summary
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
+	print length
 	output = program.compress_sentences(summary2, length)
 
 	print "url:"
