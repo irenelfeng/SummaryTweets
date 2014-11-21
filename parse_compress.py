@@ -21,6 +21,7 @@ def simple_drop(sentences, text, scores):
 	print score
 
 	for sentence in sentences:
+		print sentence
 		tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
 		POS = nltk.pos_tag(tokenized)
 		print POS

@@ -9,9 +9,12 @@ import sys
 import string
 import parse_compress #code to parse sentences and delete based on 
 
-class tfidf:
+
+class TfIdf:
+
+
 	def __init__(self):
-		"""reads corpus files and adds it to all_corpora"""
+		"""Read corpus files and add it to all_corpora"""
 		all_corpora = open('pickl/allCorpora')
 		all_pos_corpora = open('pickl/allPosCorpora')
 
@@ -32,7 +35,7 @@ class tfidf:
 		return self.url != ''
 	
 	def get_input_text(self, filename):
-		"""returns the text within a file for summarizing"""
+		"""Return the text within a file for summarizing."""
 		try:
 			my_file = open(filename, 'r')
 			text = ''
@@ -45,7 +48,7 @@ class tfidf:
 
 	#when making the dictionary we used lowercase on all the input so everything is lowercase - but now if we use the code it will not be. Idk if that's something we shoulld worry about though
 	def word_dictionary(self, filename): #deprecated 
-		"""returns the file as a dictionary with word counts"""
+		"""Return the file as a dictionary with word counts."""
 		word_count = defaultdict(int)
 		words = open(str(filename)).readlines()
 		for line in words:
@@ -58,27 +61,25 @@ class tfidf:
 		else: print '- not in dictionary'
 		self.all_corpora[filename] = word_count #adds the corpus to the corpora dictionary
 	
-	def tagged_word_dictionary(self, filename):
-		word_count = defaultdict(int)
-		tag_count = defaultdict(int)
-		words = open(str(filename)).readlines()
-		for line in words:
-			"""insert a function to clean up lines"""
-			line = line.split()
-			for word in line:
-				m = re.m(r"(?P<word>[\w.,!?()-]+)(\/)(?P<tag>[\w.,!?()-]+)", word) 
-				if m != None:
-					#print m.group('word'), m.group('tag')
-					word_count[m.group('word').lower()] +=1
-					tag_count[m.group('tag').lower()] +=1
-					#self.testWhatPOS.add(m.group('tag'))
-		self.all_corpora[filename] = word_count #adds the corpus to the corpora dictionary
-		self.all_pos_corpora[filename] = tag_count #adds the corpus to the corpora dictionary
-
+	# def tagged_word_dictionary(self, filename):
+	# 	word_count = defaultdict(int)
+	# 	tag_count = defaultdict(int)
+	# 	words = open(str(filename)).readlines()
+	# 	for line in words:
+	# 		"""insert a function to clean up lines"""
+	# 		line = line.split()
+	# 		for word in line:
+	# 			m = re.m(r"(?P<word>[\w.,!?()-]+)(\/)(?P<tag>[\w.,!?()-]+)", word) 
+	# 			if m != None:
+	# 				#print m.group('word'), m.group('tag')
+	# 				word_count[m.group('word').lower()] +=1
+	# 				tag_count[m.group('tag').lower()] +=1
+	# 				#self.testWhatPOS.add(m.group('tag'))
+	# 	self.all_corpora[filename] = word_count #adds the corpus to the corpora dictionary
+	# 	self.all_pos_corpora[filename] = tag_count #adds the corpus to the corpora dictionary
 
 	def tf_idf(self, input_text):
-		"""returns a tf-idf dictionary for each term in input_text"""
-
+		"""Return a tf-idf dictionary for each term in input_text."""
 		#first search for a url, store it and remove it from the input text
 		m = re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', input_text) #we are assuming only 1 url per input - makes sense in the context of twitter
 		if m: #if there is a url
@@ -110,10 +111,10 @@ class tfidf:
 				num_files = .1 #assume it is important -- might change that later: the word is either important or mispelled 
 			idf = math.log((len(self.all_corpora)/(num_files)))
 
-			tfidf = tf * idf
+			TfIdf = tf * idf
 			#print 'tf', tf, "| idf", idf
 
-			tfidf_dict[string.lower(word)] = tfidf
+			tfidf_dict[string.lower(word)] = TfIdf
 		return tfidf_dict
 
 	# def top_sentences(self, input_text, scores):
@@ -184,16 +185,15 @@ class tfidf:
 		#return top_sentences.most_common(num_sentences)
 		
 	def delete_phrases(self, sentences_in_lists, input_text):
-		"""deletes words and (like total_sent_score) returns sentences with score and index"""
+		"""Delete words and (like total_sent_score) returns sentences with score and index."""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
 		#parse_compress.drop_phrases(sentences_in_lists, input_text)
 		print "before: {0}".format(sentences_in_lists)
 		parse_compress.simple_drop(sentences_in_lists, input_text, scores)
 		print "after: {0}".format(sentences_in_lists)
 
-
 	def compress_sentences(self, sentences_in_lists, out_length):
-		"""compresses and returns the sentences within our desired length"""
+		"""Compress and return the sentences within our desired length."""
 		sentences = []
 		
 		"""compression"""
@@ -213,7 +213,7 @@ class tfidf:
 			for bigram in bigrams:
 				if changes > max_changes: break
 				if self.all_phrases.has_key(bigram[0]):
-					#print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
+					print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
 					bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
 
 			seen = [] #list of indices of bigrams changed
@@ -243,26 +243,26 @@ class tfidf:
 
 			sentences.append((sentence, sent_list[1], sent_list[2]))
 
-		"""ordering, printing to correct length"""
+		# Ordering and printing to correct length.
 		output = []
 		total_length = 0
 		sentences.sort(key = lambda x:x[1], reverse = True)
 
 		for sentence in sentences:
 			#print sentence
-			length = len(sentence[0]) + 1 #+1 for space before sentences
+			length = len(sentence[0]) + 1 # For space before sentences.
 			if total_length + length > out_length:
 				continue
 			total_length += length
 
-			"""insert sentences in the correct order"""
+			# Insert sentences in the correct order.
 			counter = 0
 			for i in range(len(output)): 
 				if output[i][2] < sentence[2]:
 					counter += 1
 			output.insert(counter, sentence)
 
-		"""create the output string"""
+		# Create the output string.
 		out_string = ''
 		for i in output:
 			out_string += i[0] + ' '
@@ -284,14 +284,14 @@ if __name__=='__main__':
 		sys.exit() 
 
 	print "Parsing Corpus..."
-	program = tfidf()
+	program = TfIdf()
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.get_input_text(args.textfile)
 		args.text = text
 		if text == False:
 			sys.exit() #stops program
-	print "Calculating Score..."
+	print 'Calculating Score...'
 
 	# args.text = args.text.lower() #added to make lowercase
 
@@ -308,7 +308,7 @@ if __name__=='__main__':
 	else: length = args.length
 	output = program.compress_sentences(summary2, length)
 
-	print "url:"
+	print 'url:'
 	print program.url
 	print 'The output text is:'
 	print output
