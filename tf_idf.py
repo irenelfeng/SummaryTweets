@@ -92,37 +92,6 @@ class tfidf:
 			tfidf_dict[string.lower(word)] = tfidf
 		return tfidf_dict
 
-	# def top_sentences(self, input_text, scores):
-	# 	"""returns the top Sentences by taking the top 10 percent of words"""
-	# 	input_text = re.sub('([.,!?()])', r' \1 ', input_text)
-	# 	sentences = re.split('(?<=[.!?-]) +', input_text)
-	# 	sentence_list = []
-
-	# 	#delete any urls (urls are still stored for later)
-	# 	if self.has_url(): input_text = input_text.replace(' '+self.url, '')
-
-	# 	num_words = int(math.ceil(float(len(scores))/10)) #sets num_words to be the top 10 percent of words
-	# 	words = [] #a list of the top words
-	# 	for i in range(0, num_words):
-	# 		max_word = max(scores.iterkeys(), key=lambda key: scores[key]) 
-	# 		# print max_word
-	# 		k= scores.pop(max_word)
-	# 		words.append((max_word, k)) 
-
-	# 	#print sorted(words, key=lambda key: words[i])
-	# 	for word, val in words:
-	# 		for sentence in sentences: 
-	# 			wordList = sentence.split()
-	# 			if word in wordList and sentence not in sentence_list: #if the word is in the sentence and the sentence is not already in the list
-	# 					sentence_list.append(sentence)
-	# 	# for sentence in sentence_list:
-	# 	# 	tokenized = sentence.split()
-	# 	# 	tags = nltk.pos_tag(tokenized)
-	# 		#print tags
-
-	# 	return sentence_list
-		#max(stats.iteritems(), key=operator.itemgetter(1))[0]
-
 	def total_sent_score(self, input_text, scores):
 		"""Compute the total tf-idf score of a sentence by summing the scores of each word in each sentence"""
 		# input_text = re.sub('([.,!?()])', r' \1 ', input_text) #I took these two lines from top_sentences
@@ -195,61 +164,23 @@ class tfidf:
 				if word[0] == '': continue
 				unigrams.append((word[0], word[1], index))
 			unigrams.sort(key = lambda x:x[1]) #sort based on score
-			seen = [] #list of indices of bigrams changed
 			for unigram in unigrams:
 				#print unigram
 				if changes > max_changes: break
 				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
 				if unigram_uniform in self.all_phrases:
+					print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
 					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1], unigram[2])
 					changes += 1
-					seen.append(unigram[2]) #remember that this bigram was changed
 				new_sent.append(unigram)
 
-		#"""bigram compression"""
-		#for sent_list in sentences_in_lists:
-			#max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
-			#bigrams = []
-			#first = ('', 0)
-			#second = ('', 0)
-			#for index, word in enumerate(sent_list[0]):
-				#first = second
-				#second = word
-				#if first[0] == '': continue# or second[0] == '.': continue
-				#bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
-			#bigrams.sort(key = lambda x:x[1])
-			#changes = 0
-			#new_sent = []
-			#for bigram in bigrams:
-				#if changes > max_changes: break
-				#if self.all_phrases.has_key(bigram[0]):
-					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-
-			#seen = [] #list of indices of bigrams changed
-
-			#for bigram in bigrams:
-				#if changes > max_changes: break
-				#if bigram[0] in self.all_phrases:
-					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-					#seen.append(bigram[2]) #remember that this bigram was changed
-					#changes += 1
-				#new_sent.append(bigram)
 			new_sent.sort(key = lambda x:x[2])
-			#print new_sent
 			sentence = ''
 			for ind,i in enumerate(new_sent):
-				#ADD BACK IN IF USING BIGRAMS
-				#if i[2]-1 in seen and not i[2] in seen: continue 
 				word = i[0]
 				sentence += word
 				if ind < len(new_sent):
 					sentence += ' '
-			try:	
-				sentence += new_sent[len(new_sent)-1][0].split()[1]
-			except IndexError:
-				sentence += ''
 
 			sentences.append((sentence, sent_list[1], sent_list[2]))
 
@@ -259,25 +190,22 @@ class tfidf:
 		sentences.sort(key = lambda x:x[1], reverse = True)
 
 		for sentence in sentences:
-			#print sentence
 			length = len(sentence[0]) + 1 #+1 for space before sentences
-			if total_length + length > out_length:
-				continue
+			if total_length + length > out_length: continue
 			total_length += length
 
 			"""insert sentences in the correct order"""
 			counter = 0
 			for i in range(len(output)): 
-				if output[i][2] < sentence[2]:
+				if output[i][2] < sentence[2]: 
 					counter += 1
 			output.insert(counter, sentence)
 
-		"""create the output string"""
+		"""create the output string, append url"""
 		out_string = ''
-		for i in output:
-			print i[0]
+		for i in output: 
 			out_string += i[0]
-		out_string +=self.url
+		out_string += self.url
 
 		return out_string
 
@@ -285,7 +213,7 @@ if __name__=='__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-text', type=str, help='input text', required=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=134) #140 for twitter, -6 for #CS73 hashtag+space
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=1340) #140 for twitter, -6 for #CS73 hashtag+space
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
@@ -307,19 +235,15 @@ if __name__=='__main__':
 	processed_text = program.read_input_text(args.text)
 	scores = program.tf_idf(processed_text)
 	# print scores
-	# print'\n'
 
-	#summary = program.top_sentences(args.text, scores)
 	summary2 = program.total_sent_score(processed_text, scores)
 	program.delete_phrases(summary2, processed_text, scores)
-	#print summary
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
-	print length
 	output = program.compress_sentences(summary2, length)
 
-	print "url:"
+	print "\nurl:"
 	print program.url
 	print 'The output text is:'
 	print output
