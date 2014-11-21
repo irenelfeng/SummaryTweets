@@ -19,8 +19,8 @@ if __name__=='__main__':
 			word = line[2].strip() #target e
 			otherWord = line[1].strip() #source f
 			if len(word) > len(otherWord): #if e > f
-				print word 
-				print otherWord
+				#print word 
+				#print otherWord
 				#m = re.search('\sp\(e\|f\)=([0-9.]+)', line[3]) #get prob(f|e), probability of shorter given longer.
 				#print m.group(1)
 				#print line
@@ -31,7 +31,8 @@ if __name__=='__main__':
 				phrase_dict[otherWord] = word
 			testPos.add(line[0])
 		paraphrase.close()
-	#print testPos
+	for pos in testPos:
+		print pos
 	pickl('pickl/allPhrases')
 	pickled = open('pickl/allPhrases', 'r')
 	phrases = pickle.load(pickled)
