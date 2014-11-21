@@ -11,9 +11,10 @@ import parse_compress #code to parse sentences and delete based on
 
 class tfidf:
 	def __init__(self):
-		"""reads corpus files and adds it to all_corpora"""
+		"""open and load pickl files containing dictionary"""
 		all_corpora = open('pickl/allCorpora')
-		#all_pos_corpora = open('pickl/allPosCorpora')
+
+		all_pos_corpora = open('pickl/allPoSCorpora')
 
 		all_phrases = open('pickl/allPhrases')
 
@@ -151,7 +152,7 @@ class tfidf:
 				# top_sentences[sentence] = total_score
 
 		"""returns all the sentences with a score and index"""
-		#print top_sentences
+
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
@@ -160,51 +161,89 @@ class tfidf:
 
 		"""deletes words and (like total_sent_score) returns sentences with score and index"""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
+
 		#print "before: {0}".format(sentences_in_lists)
 		parse_compress.simple_drop(sentences_in_lists, input_text, scores)
 		#print "after: {0}".format(sentences_in_lists)
 
+	def get_dictionary_paraphrase(self, unigram): 
+		"""short method just to keep punctuation and capitalization uniform after searching through dictionary"""
+		r_punc = ''
+		l_punc = ''
+		if unigram.rstrip(".'.,!?;:'*)]") != unigram: #if there exists a punctuation on the right
+			r_punc = unigram[-1]
+		if unigram.lstrip(".'.,!?;:'*([") != unigram: #if there exists a punctuation on the left
+			l_punc = unigram[-1]
+
+		new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
+
+		if unigram[0].lower() != unigram[0]: #check if capitalized
+			new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
+		new_unigram = l_punc + new_unigram + r_punc
+		return new_unigram
 
 	def compress_sentences(self, sentences_in_lists, out_length):
 		"""compresses and returns the sentences within our desired length"""
 		sentences = []
-		
-		"""compression"""
+
+		"""unigram compression"""
 		for sent_list in sentences_in_lists:
-			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
-			bigrams = []
-			first = ('', 0)
-			second = ('', 0)
-			for index, word in enumerate(sent_list[0]):
-				first = second
-				second = word
-				if first[0] == '': continue# or second[0] == '.': continue
-				bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
-			bigrams.sort(key = lambda x:x[1])
+			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make in each sentence
+			unigrams = []
 			changes = 0
 			new_sent = []
-			for bigram in bigrams:
-				if changes > max_changes: break
-				if self.all_phrases.has_key(bigram[0]):
-					#print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-
+			for index, word in enumerate(sent_list[0]):
+				if word[0] == '': continue
+				unigrams.append((word[0], word[1], index))
+			unigrams.sort(key = lambda x:x[1]) #sort based on score
 			seen = [] #list of indices of bigrams changed
-
-			for bigram in bigrams:
+			for unigram in unigrams:
+				print unigram
 				if changes > max_changes: break
-				if bigram[0] in self.all_phrases:
-					#print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
-					bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
-					seen.append(bigram[2]) #remember that this bigram was changed
+				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
+				if unigram_uniform in self.all_phrases:
+					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1], unigram[2])
 					changes += 1
-				new_sent.append(bigram)
+					seen.append(unigram[2]) #remember that this bigram was changed
+				new_sent.append(unigram)
+
+		#"""bigram compression"""
+		#for sent_list in sentences_in_lists:
+			#max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make
+			#bigrams = []
+			#first = ('', 0)
+			#second = ('', 0)
+			#for index, word in enumerate(sent_list[0]):
+				#first = second
+				#second = word
+				#if first[0] == '': continue# or second[0] == '.': continue
+				#bigrams.append((first[0] + ' ' + second[0], first[1]+second[1], index))
+			#bigrams.sort(key = lambda x:x[1])
+			#changes = 0
+			#new_sent = []
+			#for bigram in bigrams:
+				#if changes > max_changes: break
+				#if self.all_phrases.has_key(bigram[0]):
+					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
+					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
+
+			#seen = [] #list of indices of bigrams changed
+
+			#for bigram in bigrams:
+				#if changes > max_changes: break
+				#if bigram[0] in self.all_phrases:
+					##print 'changing', bigram[0], '>>>', self.all_phrases[bigram[0]]
+					#bigram = (self.all_phrases[bigram[0]], bigram[1], bigram[2])
+					#seen.append(bigram[2]) #remember that this bigram was changed
+					#changes += 1
+				#new_sent.append(bigram)
 
 			new_sent.sort(key = lambda x:x[2])
 			#print new_sent
 			sentence = ''
 			for ind,i in enumerate(new_sent):
-				if i[2]-1 in seen and not i[2] in seen: continue
+				#ADD BACK IN IF USING BIGRAMS
+				#if i[2]-1 in seen and not i[2] in seen: continue 
 				word = i[0].split()
 				sentence += word[0]
 				if ind < len(new_sent):
@@ -238,7 +277,8 @@ class tfidf:
 		"""create the output string"""
 		out_string = ''
 		for i in output:
-			out_string += i[0] + ' '
+			print i[0]
+			out_string += i[0]
 		out_string +=self.url
 
 		return out_string

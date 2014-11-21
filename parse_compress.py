@@ -11,7 +11,7 @@ nodrop = ['not','never']
 def tag(text):
 	parser = Parser()
 	#print "done with initializing parser"
-	#print text
+	sentences = re.split('(?<=[.!?-]) +', text)
 	# tree = parser.parse(text)
 	# for subtree in tree.subtrees():
 	# 	print subtree
