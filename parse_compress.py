@@ -30,18 +30,22 @@ def simple_drop(sentences, text, scores):
 
 	for sentence in sentences:
 		tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
+
 		POS = nltk.pos_tag(tokenized)
-		#print POS
+		print POS
 		for i, word_tuple in enumerate(sentence[0]):
+			print "word: {0}, POS {1}".format(word_tuple, POS[i][1])
 			if POS[i][1] in adjs: #if adj
 				#if the word coming after the adjective is a noun and the adj is not important by tf_idf, delete it
 				if i < len(sentence[0])-1 and POS[i+1][1] in nouns and word_tuple[1]<= score and word_tuple[0] not in nodrop:
 					sentence[0].remove(word_tuple)
-					print "removed {0}".format(word_tuple)
+					del POS[i]
+					#print "removed {0}".format(word_tuple)
 			elif POS[i][1] in adverbs:
 				if word_tuple[1]<=score and word_tuple[0] not in nodrop:
 					sentence[0].remove(word_tuple)
-					print "removed {0}".format(word_tuple)
+					del POS[i]
+					#print "removed {0}".format(word_tuple)
 	return sentences
 
 

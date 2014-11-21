@@ -174,7 +174,6 @@ class tfidf:
 			r_punc = unigram[-1]
 		if unigram.lstrip(".'.,!?;:'*([") != unigram: #if there exists a punctuation on the left
 			l_punc = unigram[-1]
-
 		new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
 
 		if unigram[0].lower() != unigram[0]: #check if capitalized
@@ -198,7 +197,7 @@ class tfidf:
 			unigrams.sort(key = lambda x:x[1]) #sort based on score
 			seen = [] #list of indices of bigrams changed
 			for unigram in unigrams:
-				print unigram
+				#print unigram
 				if changes > max_changes: break
 				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
 				if unigram_uniform in self.all_phrases:
@@ -237,15 +236,14 @@ class tfidf:
 					#seen.append(bigram[2]) #remember that this bigram was changed
 					#changes += 1
 				#new_sent.append(bigram)
-
 			new_sent.sort(key = lambda x:x[2])
 			#print new_sent
 			sentence = ''
 			for ind,i in enumerate(new_sent):
 				#ADD BACK IN IF USING BIGRAMS
 				#if i[2]-1 in seen and not i[2] in seen: continue 
-				word = i[0].split()
-				sentence += word[0]
+				word = i[0]
+				sentence += word
 				if ind < len(new_sent):
 					sentence += ' '
 			try:	
