@@ -24,6 +24,15 @@ class compressor:
 		#unigram_dic.close()
 
 
+		all_unigrams = open('pickl/arpaUnigrams')
+		all_bigrams = open('pickl/arpaBigrams')
+
+		self.all_unigrams = pickle.load(all_unigrams)
+		self.all_bigrams = pickle.load(all_bigrams)
+
+		all_unigrams.close()
+		all_bigrams.close()
+
 	def simple_drop(self, sentences, text, scores):
 		"""drops adjs and adverbs based on tf-idf scores and location"""
 		score = numpy.percentile([scores.values()], 75) #threshold for deleting words - upper quartile
