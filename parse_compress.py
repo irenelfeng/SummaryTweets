@@ -7,7 +7,7 @@ import pickle
 nouns = ['NN','NNS','NNP','NNPS']
 adverbs = ['RB','RBR','RBS']
 adjs = ['JJ','JJR','JJS']
-nodrop = ['not','never']
+nodrop = ['not','never','last']
 
 class compressor:
 	
@@ -39,16 +39,44 @@ class compressor:
 				#print "word: {0}, POS {1}".format(word_tuple, POS[i][1])
 				if POS[i][1] in adjs: #if adj
 					#if the word coming after the adjective is a noun and the adj is not important by tf_idf, delete it
-					if i < len(sentence[0])-1 and POS[i+1][1] in nouns and word_tuple[1]<= score and word_tuple[0] not in nodrop:
+					if i < len(sentence[0])-1 and POS[i+1][1] in nouns and word_tuple[1]<= score and word_tuple[0].lower() not in nodrop:
 						sentence[0].remove(word_tuple)
 						del POS[i]
 						#print "removed {0}".format(word_tuple)
 				elif POS[i][1] in adverbs:
-					if word_tuple[1]<=score and word_tuple[0] not in nodrop:
+					if word_tuple[1]<=score and word_tuple[0].lower() not in nodrop:
 						sentence[0].remove(word_tuple)
 						del POS[i]
 						#print "removed {0}".format(word_tuple)
 		return sentences
+
+	def get_probability(self, poss_paraphrase, prev_word, next_word):
+
+		prob_p = 0
+		paraphrase = poss_paraphrase #copy, in case overwritten by <unk> in next step
+			
+		if poss_paraphrase not in self.all_unigrams: 
+			poss_paraphrase = '<unk>'
+			#print "poss paraphrase not in dictionary"
+
+		if prev_word in self.all_bigrams and poss_paraphrase in self.all_bigrams[prev_word]:
+			prob_p += self.all_bigrams[prev_word][poss_paraphrase]
+			#print prob_p
+		else:
+			if prev_word not in self.all_unigrams: #must put in <unk> probability
+				prev_word = '<unk>'
+			
+			prob_p += self.all_unigrams[prev_word][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+			#print prob_p
+
+		if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams[poss_paraphrase]:
+			prob_p += self.all_bigrams[poss_paraphrase][next_word]
+			#print "score if next word in {0}".format(prob_p)
+		else:
+			if next_word not in self.all_unigrams: #must put in <unk> probability
+				next_word = '<unk>'
+			prob_p += self.all_unigrams[poss_paraphrase][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+		return (paraphrase, prob_p)
 
 	def get_dictionary_paraphrase(self, unigram, prev_word, next_word): 
 		"""gets best phrase"""
@@ -61,36 +89,32 @@ class compressor:
 			l_punc = unigram[-1]
 
 		unigram_uniform = unigram.strip(".'.,!?;:'*()[]").lower()
+
+		#getting the probability of the orgininal word in the sentence, in case of bad paraphrases
+		phrase_prob = self.get_probability(unigram_uniform, prev_word, next_word) 
+		maxscore = (phrase_prob[0], phrase_prob[1]*1.2) #weight so it's not biased to choosing original word
+
 		for poss_paraphrase in self.all_phrases[unigram_uniform]:
-			prob_p = float(self.all_phrases[unigram_uniform][poss_paraphrase])*-1
-			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
-			if prev_word in self.all_bigrams and poss_paraphrase in self.all_bigrams[prev_word]:
-				prob_p += float(self.all_bigrams[prev_word][poss_paraphrase])
-			else:
-				if prev_word not in self.all_unigrams: #must put in <unk> probability
-					prev_word = '<unk>'
-					prob_p += float(self.all_unigrams[prev_word][1]) #backoff(c-1)
-				if poss_paraphrase in self.all_unigrams: #if it's not in, we give it a good prob score
-					prob_p += float(self.all_unigrams[poss_paraphrase][0]) #P(c)
 
-			if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams:
-				prob_p += float(self.all_bigrams[poss_paraphrase][next_word])
-			else:
-				print self.all_unigrams['</s>']
-				if next_word not in self.all_unigrams: #must put in <unk> probability
-					next_word = '<unk>'
-					prob_p += float(self.all_unigrams[next_word][0]) #P(c+1)
-				if poss_paraphrase in self.all_unigrams:
-					prob_p += float(self.all_unigrams[poss_paraphrase][1]) #backoff(c)
-			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
+			prob_p = self.all_phrases[unigram_uniform][poss_paraphrase]*-1 #p(e|f) in PPDB
+			#print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
+			#print prob_p
+			#print prev_word + " " + next_word
+			phrase = self.get_probability(poss_paraphrase, prev_word, next_word)
+			phrase_prob = prob_p + phrase[1]
+			print "changes to {0} with prob {1}".format(phrase[0], phrase_prob)
 
+			if phrase_prob > maxscore[1]:
+				print "update"
+				maxscore = (phrase[0], phrase_prob)
 
-		#new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
+		guess_unigram = maxscore[0]
+		print "max score is {0}".format(maxscore)
 
-		#if unigram[0].lower() != unigram[0]: #check if capitalized
-			#new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
-		#new_unigram = l_punc + new_unigram + r_punc
-		return unigram
+		if unigram[0].lower() != unigram[0]: #check if capitalized
+			guess_unigram = guess_unigram.capitalize() #then also capitalize the new unigram
+		new_unigram = l_punc + guess_unigram + r_punc
+		return new_unigram
 
 	def compress_sentences(self, sentences_in_lists):
 		sentences = []
@@ -111,11 +135,12 @@ class compressor:
 			for index, unigram in enumerate(sent_list[0]):
 			#if changes > max_changes: break
 				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
-				if unigram_uniform in self.all_phrases:
-					#print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
+				if unigram_uniform in self.all_phrases: #if there is a paraphrase in the dictionary, 
+
 					if index != 0: prev_word = sent_list[0][index-1][0]
 					else: prev_word = '<s>'
-					if index != len(sent_list[0])-1: next_word = sent_list[0][index-1][0]
+
+					if index != len(sent_list[0])-1: next_word = sent_list[0][index+1][0]
 					else: next_word = '</s>'
 					new_unigram = self.get_dictionary_paraphrase(unigram[0], prev_word, next_word) 
 					unigram = (new_unigram, unigram[1])
