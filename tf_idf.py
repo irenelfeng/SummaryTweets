@@ -7,7 +7,7 @@ import collections
 import pickle
 import sys
 import string
-import parse_compress #code to parse sentences and delete based on 
+import parse_compress #code for sentence compression
 
 
 class TfIdf:
@@ -21,6 +21,7 @@ class TfIdf:
 
 		all_phrases = open('pickl/allPhrases')
 
+
 		self.all_corpora = pickle.load(all_corpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		#self.all_pos_corpora = pickle.load(all_pos_corpora)
 		self.all_phrases = pickle.load(all_phrases)
@@ -31,6 +32,8 @@ class TfIdf:
 
 		#store url, if any
 		self.url = ''
+
+		self.compressor = parse_compress.compressor()
 
 	def has_url(self):
 		return self.url != ''
@@ -128,66 +131,8 @@ class TfIdf:
 		return top_sentences 
 		#return top_sentences.most_common(num_sentences)
 
-		
-	def delete_phrases(self, sentences_in_lists, input_text,scores):
-		"""Delete words and (like total_sent_score) returns sentences with score and index."""
-		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
-		#print "before: {0}".format(sentences_in_lists)
-		parse_compress.simple_drop(sentences_in_lists, input_text, scores)
-		#print "after: {0}".format(sentences_in_lists)
-
-	def get_dictionary_paraphrase(self, unigram): 
-		"""short method just to keep punctuation and capitalization uniform after searching through dictionary"""
-		r_punc = ''
-		l_punc = ''
-		if unigram.rstrip(".'.,!?;:'*)]") != unigram: #if there exists a punctuation on the right
-			r_punc = unigram[-1]
-		if unigram.lstrip(".'.,!?;:'*([") != unigram: #if there exists a punctuation on the left
-			l_punc = unigram[-1]
-		new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
-
-		if unigram[0].lower() != unigram[0]: #check if capitalized
-			new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
-		new_unigram = l_punc + new_unigram + r_punc
-		return new_unigram
-
-	def compress_sentences(self, sentences_in_lists, out_length):
-		"""Compress and return the sentences within our desired length."""
-		sentences = []
-
-		"""unigram compression"""
-		for sent_list in sentences_in_lists:
-			max_changes = len(sent_list[0])/2 #the greatest number of changes we want to make in each sentence
-			unigrams = []
-			changes = 0
-			new_sent = []
-
-			for index, word in enumerate(sent_list[0]):
-				if word[0] == '': continue
-				unigrams.append((word[0], word[1], index))
-			unigrams.sort(key = lambda x:x[1]) #sort based on score
-			for unigram in unigrams:
-				#print unigram
-
-				if changes > max_changes: break
-				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
-				if unigram_uniform in self.all_phrases:
-					print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
-					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1], unigram[2])
-					changes += 1
-				new_sent.append(unigram)
-
-			new_sent.sort(key = lambda x:x[2])
-			sentence = ''
-			for ind,i in enumerate(new_sent):
-				word = i[0]
-				sentence += word
-				if ind < len(new_sent):
-					sentence += ' '
-
-			sentences.append((sentence, sent_list[1], sent_list[2]))
-
-		# Ordering and printing to correct length.
+	def output_sentences(self, sentences, out_length):
+		"""ordering sentences and printing to correct length"""
 		output = []
 		total_length = 0
 		sentences.sort(key = lambda x:x[1], reverse = True)
@@ -234,20 +179,19 @@ if __name__=='__main__':
 			sys.exit() 
 	print "Calculating Score..."
 
-	# args.text = args.text.lower() #added to make lowercase
-
 	processed_text = program.read_input_text(args.text)
 	scores = program.tf_idf(processed_text)
 	# print scores
 
 	summary2 = program.total_sent_score(processed_text, scores)
-	program.delete_phrases(summary2, processed_text, scores)
+	program.compressor.simple_drop(summary2, processed_text, scores)
 	#print summary2
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
-	output = program.compress_sentences(summary2, length)
+	compressed = program.compressor.compress_sentences(summary2)
+	# output = program.output_sentences(compressed, length)
 
-	print "\nurl:"
-	print program.url
-	print 'The output text is:'
-	print output
+	# print "\nurl:"
+	# print program.url
+	# print 'The output text is:'
+	# print output
