@@ -14,15 +14,8 @@ class compressor:
 	def __init__(self):
 		"""dictionaries loaded"""
 		all_phrases = open('pickl/allPhrasesProb')
-		#bigram_dic = open('pickl/bigramDic')
-		#unigram_dic= open('pickl/unigramDic')
 		self.all_phrases = pickle.load(all_phrases)
-		#self.bigram_dic = pickle.load(bigram_dic)
-		#self.unigram_dic = pickle.load(unigram_dic)
 		all_phrases.close()
-		#bigram_dic.close()
-		#unigram_dic.close()
-
 
 		all_unigrams = open('pickl/arpaUnigrams')
 		all_bigrams = open('pickl/arpaBigrams')
@@ -57,7 +50,7 @@ class compressor:
 						#print "removed {0}".format(word_tuple)
 		return sentences
 
-	def get_dictionary_paraphrase(self, unigram): 
+	def get_dictionary_paraphrase(self, unigram, prev_word, next_word): 
 		"""gets best phrase"""
 		#r_punc and l_punc just to keep syntax
 		r_punc = ''
@@ -69,8 +62,23 @@ class compressor:
 
 		unigram_uniform = unigram.strip(".'.,!?;:'*()[]").lower()
 		for poss_paraphrase in self.all_phrases[unigram_uniform]:
-			prob_p = self.all_phrases[unigram_uniform][poss_paraphrase]
+			prob_p = float(self.all_phrases[unigram_uniform][poss_paraphrase])*-1
 			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
+			if prev_word in self.all_bigrams and poss_paraphrase in self.all_bigrams[prev_word]:
+				prob_p += self.all_bigrams[prev_word][poss_paraphrase]
+			else:
+				if prev_word not in self.all_unigrams: #must put in <unk> probability
+					prev_word = '<unk>'
+				prob_p += self.all_unigrams[prev_word][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+
+			if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams[x]:
+				prob_p += self.all_bigrams[poss_paraphrase][nextWord]
+			else:
+				if next_word not in self.all_unigrams: #must put in <unk> probability
+					next_word = '<unk>'
+				prob_p += self.all_unigrams[poss_paraphrase][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
+
 
 		#new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
 
@@ -101,10 +109,11 @@ class compressor:
 				if unigram_uniform in self.all_phrases:
 					#print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
 					if index != 0: prev_word = sent_list[0][index-1][0]
-					else: prev_word = ''
-					if index != len(sent_list[0])-1: sent_list[0][index-1][0]
-					else: next_word = '' 
-					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1])
+					else: prev_word = '<s>'
+					if index != len(sent_list[0])-1: next_word = sent_list[0][index-1][0]
+					else: next_word = '</s>'
+					new_unigram = self.get_dictionary_paraphrase(unigram[0], prev_word, next_word) 
+					unigram = (new_unigram, unigram[1])
 					changes += 1
 				new_sent.append(unigram)
 
