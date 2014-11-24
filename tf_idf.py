@@ -177,10 +177,10 @@ if __name__=='__main__':
 	scores = program.tf_idf(processed_text)
 
 	summary = program.total_sent_score(processed_text, scores)
-	program.compressor.simple_drop(summary, processed_text, scores)
+	dropped = program.compressor.simple_drop(summary, processed_text, scores)
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
-	compressed = program.compressor.compress_sentences(summary)
+	compressed = program.compressor.compress_sentences(dropped)
 	output = program.output_sentences(compressed, length)
 
 	print 'The output text is:'

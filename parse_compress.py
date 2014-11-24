@@ -7,7 +7,7 @@ import pickle
 nouns = ['NN','NNS','NNP','NNPS']
 adverbs = ['RB','RBR','RBS']
 adjs = ['JJ','JJR','JJS']
-nodrop = ['not','never','last']
+nodrop = ['not','never','last', 'next']
 
 class compressor:
 
@@ -152,6 +152,6 @@ class compressor:
 	# 	print "parent = {0}".format(subtree.parent())
 	# return tree
 
-def drop_phrases(sentences, text):
-	"""reads in sentences and drops certain parts of speech based on their tf-idf score"""
-	parser = Parser()
+# def drop_phrases(sentences, text):
+# 	"""reads in sentences and drops certain parts of speech based on their tf-idf score"""
+# 	parser = Parser()
