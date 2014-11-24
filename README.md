@@ -17,9 +17,7 @@ python tfidf
 Use the flag "-h" for information about the input arguments.
 
 ##Structure
-/CorpusFolder- contains the Brown Corpus
-
-/bc3&framework.1.1- corpus of summaries (unused)
+/CorpusFolder- contains the Brown Corpus and arpa bigram probabilities
 
 /pickl- contains the serialized dictionaries for our corpus. These dictionaries are used for sentence compression and tf-idf
 
