@@ -65,7 +65,6 @@ class tfidf:
 		print input_text
 		tree_tags = parse_compress.tag(input_text) #maybe move somewhere else in the end
 
-		###for orestis for ascii characters
 
 		return input_text
 
@@ -158,7 +157,10 @@ class tfidf:
 		out_string = ''
 		for i in output: 
 			out_string += i[0]
-		out_string += self.url
+		if len(out_string)>0:
+			out_string += self.url
+		else:
+			out_string += 'It seems that all the sentences were too long to be compressed to a Tweet or the input text was not in English. Thank you for using SummaryTweets.'
 
 		return out_string
 
