@@ -26,21 +26,22 @@ if __name__=='__main__':
 		matches = line.split()
 		try:
 			temp1 = matches.pop(1)
-			if temp1.isalpha() == False:
-				continue
-			temp2 = (matches.pop(0), matches.pop(0))
+			#if temp1.isalpha() == False:
+				#continue
+			temp2 = (float(matches.pop(0)), float(matches.pop(0)))
 		except IndexError:
 			continue
 		matchings1[temp1] = temp2
+
 	matchings2 = {}
 	for line in file:
 		matches = line.split()
 		try:
 			temp1 = matches.pop(2) #the word
 			temp2 = matches.pop(1) #the prevword
-			if temp1.isalpha() == False or temp2.isalpha() == False:
-				continue
-			temp3 = matches.pop(0) #the logP
+			#if temp1.isalpha() == False or temp2.isalpha() == False:
+				#continue
+			temp3 = float(matches.pop(0)) #the logP
 		except IndexError:
 			continue
 		if matchings2.has_key(temp1):
@@ -55,5 +56,5 @@ if __name__=='__main__':
 	#pickled = open('arpaUnigrams', 'r')
 	pickled = open('arpaBigrams', 'r')
 	phrases = pickle.load(pickled)
-	for key, value in phrases.iteritems() :
-		print key, value
+	#for key, value in phrases.iteritems() :
+		#print key, value
