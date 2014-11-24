@@ -16,6 +16,15 @@ class compressor:
 		self.all_phrases = pickle.load(all_phrases)
 		all_phrases.close()
 
+		all_unigrams = open('pickl/arpaUnigrams')
+		all_bigrams = open('pickl/arpaBigrams')
+
+		self.all_unigrams = pickle.load(all_unigrams)
+		self.all_bigrams = pickle.load(all_bigrams)
+
+		all_unigrams.close()
+		all_bigrams.close()
+
 	def simple_drop(self, sentences, text, scores):
 		"""more simple"""
 		score = numpy.percentile([scores.values()], 75) #threshold for deleting words - upper quartile

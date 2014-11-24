@@ -18,22 +18,14 @@ class tfidf:
 
 		all_phrases = open('pickl/allPhrases')
 
-		all_unigrams = open('pickl/arpaUnigrams')
-
-		all_bigrams = open('pickl/arpaBigrams')
 
 		self.all_corpora = pickle.load(all_corpora) #will be a dictionary pointing to the corpus file, each of which is a dictionary of the all the word counts.
 		#self.all_pos_corpora = pickle.load(all_pos_corpora)
 		self.all_phrases = pickle.load(all_phrases)
 
-		self.all_unigrams = pickle.load(all_unigrams)
-		self.all_bigrams = pickle.load(all_bigrams)
-
 		all_corpora.close()
 		#all_pos_corpora.close()
 		all_phrases.close()
-		all_unigrams.close()
-		all_bigrams.close()
 
 		#store url, if any
 		self.url = ''
