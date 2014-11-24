@@ -129,7 +129,7 @@ class TfIdf:
 		#return top_sentences.most_common(num_sentences)
 
 		
-	def delete_phrases(self, sentences_in_lists, input_text):
+	def delete_phrases(self, sentences_in_lists, input_text,scores):
 		"""Delete words and (like total_sent_score) returns sentences with score and index."""
 		#sentences_in_lists = parse_compress.drop_phrases(sentences_in_lists)
 		#print "before: {0}".format(sentences_in_lists)
@@ -217,7 +217,7 @@ if __name__=='__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-text', type=str, help='input text', required=False)
 	parser.add_argument('-textfile', type=str, help='boolean if given input file', required=False)
-	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=1340) #140 for twitter, -6 for #CS73 hashtag+space
+	parser.add_argument('-length', type=str, help='length of final compression', required=False, default=134) #140 for twitter, -6 for #CS73 hashtag+space
 	args = parser.parse_args()
 
 	if args.text is None and args.textfile is None:
