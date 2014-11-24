@@ -65,18 +65,23 @@ class compressor:
 			prob_p = float(self.all_phrases[unigram_uniform][poss_paraphrase])*-1
 			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
 			if prev_word in self.all_bigrams and poss_paraphrase in self.all_bigrams[prev_word]:
-				prob_p += self.all_bigrams[prev_word][poss_paraphrase]
+				prob_p += float(self.all_bigrams[prev_word][poss_paraphrase])
 			else:
 				if prev_word not in self.all_unigrams: #must put in <unk> probability
 					prev_word = '<unk>'
-				prob_p += self.all_unigrams[prev_word][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+					prob_p += float(self.all_unigrams[prev_word][1]) #backoff(c-1)
+				if poss_paraphrase in self.all_unigrams: #if it's not in, we give it a good prob score
+					prob_p += float(self.all_unigrams[poss_paraphrase][0]) #P(c)
 
-			if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams[x]:
-				prob_p += self.all_bigrams[poss_paraphrase][nextWord]
+			if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams:
+				prob_p += float(self.all_bigrams[poss_paraphrase][next_word])
 			else:
+				print self.all_unigrams['</s>']
 				if next_word not in self.all_unigrams: #must put in <unk> probability
 					next_word = '<unk>'
-				prob_p += self.all_unigrams[poss_paraphrase][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
+					prob_p += float(self.all_unigrams[next_word][0]) #P(c+1)
+				if poss_paraphrase in self.all_unigrams:
+					prob_p += float(self.all_unigrams[poss_paraphrase][1]) #backoff(c)
 			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
 
 

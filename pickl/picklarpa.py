@@ -55,5 +55,5 @@ if __name__=='__main__':
 	#pickled = open('arpaUnigrams', 'r')
 	pickled = open('arpaBigrams', 'r')
 	phrases = pickle.load(pickled)
-	for key, value in phrases.iteritems() :
-		print key, value
+	#for key, value in phrases.iteritems() :
+		#print key, value
