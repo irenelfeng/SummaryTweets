@@ -9,12 +9,9 @@ import sys
 import string
 import parse_compress #code for sentence compression
 
-
-class TfIdf:
-
-
+class tfidf:
 	def __init__(self):
-		"""Open and load pickl files containing dictionary"""
+		"""open and load pickl files containing dictionary"""
 		all_corpora = open('pickl/allCorpora')
 
 		all_pos_corpora = open('pickl/allPoSCorpora')
@@ -39,7 +36,7 @@ class TfIdf:
 		return self.url != ''
 	
 	def get_input_text(self, filename):
-		"""Return the text within a file for summarizing."""
+		"""returns the text within a file for summarizing"""
 		try:
 			my_file = open(filename, 'r')
 			text = ''
@@ -92,10 +89,10 @@ class TfIdf:
 				num_files = .1 #assume it is important
 			idf = math.log((len(self.all_corpora)/(num_files)))
 
-			TfIdf = tf * idf
+			tfidf = tf * idf
 			#print 'tf', tf, "| idf", idf
 
-			tfidf_dict[string.lower(word)] = TfIdf
+			tfidf_dict[string.lower(word)] = tfidf
 		return tfidf_dict
 
 	def total_sent_score(self, input_text, scores):
@@ -142,15 +139,14 @@ class TfIdf:
 			if total_length + length > out_length: continue
 			total_length += length
 
-			# Insert sentences in the correct order.
+			"""insert sentences in the correct order"""
 			counter = 0
 			for i in range(len(output)): 
 				if output[i][2] < sentence[2]: 
 					counter += 1
 			output.insert(counter, sentence)
 
-		# Create the output string, append url
-
+		"""create the output string, append url"""
 		out_string = ''
 		for i in output: 
 			out_string += i[0]
@@ -170,7 +166,7 @@ if __name__=='__main__':
 		sys.exit() 
 
 	print "Parsing Corpus..."
-	program = TfIdf()
+	program = tfidf()
 	if args.textfile != None:
 		print 'Opening Input Text File...'
 		text = program.get_input_text(args.textfile)
