@@ -101,7 +101,7 @@ class compressor:
 			#print prob_p
 			#print prev_word + " " + next_word
 			phrase = self.get_probability(poss_paraphrase, prev_word, next_word)
-			phrase_prob = prob_p + phrase[1]
+			phrase_prob = prob_p + str(phrase[1])
 			print "changes to {0} with prob {1}".format(phrase[0], phrase_prob)
 
 			if phrase_prob > maxscore[1]:

@@ -8,6 +8,9 @@ import pickle
 import sys
 import string
 import parse_compress #code for sentence compression
+import scrape #get an article from a url
+from unidecode import unidecode
+
 
 class tfidf:
 	def __init__(self):
@@ -55,6 +58,11 @@ class tfidf:
 			self.url = str(m.group(0))
 			#print self.url
 			input_text = input_text.replace(self.url, '')
+		if len(input_text)==0:
+			input_text = scrape.extract(self.url)
+		input_text = unidecode(input_text) 
+		print "INPUT TEXT:"
+		print input_text
 		tree_tags = parse_compress.tag(input_text) #maybe move somewhere else in the end
 
 		###for orestis for ascii characters
@@ -101,7 +109,7 @@ class tfidf:
 
 		#print "\nThe input text is:\n", input_text, "\n"
 
-		sentences = re.split('(?<=[.!?-]) +', input_text)
+		sentences = re.split('(?<=[.!?]) +', input_text) #I removed the dash - it doesn't delimit sentences. but we can talk about that
 
 		#top_sentences = Counter()
 		top_sentences = []
@@ -185,9 +193,9 @@ if __name__=='__main__':
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
 	compressed = program.compressor.compress_sentences(summary2)
-	# output = program.output_sentences(compressed, length)
+	output = program.output_sentences(compressed, length)
 
-	# print "\nurl:"
-	# print program.url
-	# print 'The output text is:'
-	# print output
+	print "\nurl:"
+	print program.url
+	print 'The output text is:'
+	print output
