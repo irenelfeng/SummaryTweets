@@ -10,9 +10,10 @@ adjs = ['JJ','JJR','JJS']
 nodrop = ['not','never','last']
 
 class compressor:
+
 	
 	def __init__(self):
-		"""dictionaries loaded"""
+		"""load dictionaries"""
 		all_phrases = open('pickl/allPhrasesProb')
 		self.all_phrases = pickle.load(all_phrases)
 		all_phrases.close()
@@ -29,25 +30,22 @@ class compressor:
 	def simple_drop(self, sentences, text, scores):
 		"""drops adjs and adverbs based on tf-idf scores and location"""
 		score = numpy.percentile([scores.values()], 75) #threshold for deleting words - upper quartile
-		#print score
+
 		for sentence in sentences:
-			tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
+			tokenized = [i[0] for i in sentence[0]] #gets word in the sentence
 
 			POS = nltk.pos_tag(tokenized)
 			print POS
 			for i, word_tuple in enumerate(sentence[0]):
-				#print "word: {0}, POS {1}".format(word_tuple, POS[i][1])
 				if POS[i][1] in adjs: #if adj
 					#if the word coming after the adjective is a noun and the adj is not important by tf_idf, delete it
 					if i < len(sentence[0])-1 and POS[i+1][1] in nouns and word_tuple[1]<= score and word_tuple[0].lower() not in nodrop:
 						sentence[0].remove(word_tuple)
 						del POS[i]
-						#print "removed {0}".format(word_tuple)
 				elif POS[i][1] in adverbs:
 					if word_tuple[1]<=score and word_tuple[0].lower() not in nodrop:
 						sentence[0].remove(word_tuple)
 						del POS[i]
-						#print "removed {0}".format(word_tuple)
 		return sentences
 
 	def get_probability(self, poss_paraphrase, prev_word, next_word):
@@ -57,21 +55,16 @@ class compressor:
 			
 		if poss_paraphrase not in self.all_unigrams: 
 			poss_paraphrase = '<unk>'
-			#print "poss paraphrase not in dictionary"
 
 		if prev_word in self.all_bigrams and poss_paraphrase in self.all_bigrams[prev_word]:
 			prob_p += self.all_bigrams[prev_word][poss_paraphrase]
-			#print prob_p
 		else:
 			if prev_word not in self.all_unigrams: #must put in <unk> probability
 				prev_word = '<unk>'
-			
 			prob_p += self.all_unigrams[prev_word][1] + self.all_unigrams[poss_paraphrase][0] #backoff(c-1) and P(c)
-			#print prob_p
 
 		if poss_paraphrase in self.all_bigrams and next_word in self.all_bigrams[poss_paraphrase]:
 			prob_p += self.all_bigrams[poss_paraphrase][next_word]
-			#print "score if next word in {0}".format(prob_p)
 		else:
 			if next_word not in self.all_unigrams: #must put in <unk> probability
 				next_word = '<unk>'
@@ -97,9 +90,6 @@ class compressor:
 		for poss_paraphrase in self.all_phrases[unigram_uniform]:
 
 			prob_p = self.all_phrases[unigram_uniform][poss_paraphrase]*-1 #p(e|f) in PPDB
-			#print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
-			#print prob_p
-			#print prev_word + " " + next_word
 			phrase = self.get_probability(poss_paraphrase, prev_word, next_word)
 			phrase_prob = prob_p + str(phrase[1])
 			print "changes to {0} with prob {1}".format(phrase[0], phrase_prob)
@@ -125,13 +115,7 @@ class compressor:
 			unigrams = []
 			changes = 0
 			new_sent = []
-			#for index, word in enumerate(sent_list[0]):
-				#if word[0] == '': continue
-				#unigrams.append((word[0], word[1], index)) #Probably don't need index OLD CODE
-			#unigrams.sort(key = lambda x:x[1]) #sort based on score
-			#
-			# for sentence in sent_list[0]:
-			# 	print sentence
+
 			for index, unigram in enumerate(sent_list[0]):
 			#if changes > max_changes: break
 				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
@@ -147,7 +131,6 @@ class compressor:
 					changes += 1
 				new_sent.append(unigram)
 
-			#new_sent.sort(key = lambda x:x[2])
 			sentence = ''
 			for ind,i in enumerate(new_sent):
 				word = i[0]
@@ -159,10 +142,10 @@ class compressor:
 
 		return sentences
 
-def tag(text):
-	parser = Parser()
-	#print "done with initializing parser"
-	sentences = re.split('(?<=[.!?-]) +', text)
+#might expand this in the future.
+# def tag(text):
+# 	parser = Parser()
+# 	sentences = re.split('(?<=[.!?-]) +', text)
 	# tree = parser.parse(text)
 	# for subtree in tree.subtrees():
 	# 	print subtree
