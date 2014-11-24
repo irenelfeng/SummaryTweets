@@ -34,7 +34,7 @@ class compressor:
 			tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
 
 			POS = nltk.pos_tag(tokenized)
-			#print POS
+			print POS
 			for i, word_tuple in enumerate(sentence[0]):
 				#print "word: {0}, POS {1}".format(word_tuple, POS[i][1])
 				if POS[i][1] in adjs: #if adj
