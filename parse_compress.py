@@ -12,9 +12,17 @@ nodrop = ['not','never']
 class compressor:
 	
 	def __init__(self):
-		all_phrases = open('pickl/allPhrases')
+		"""dictionaries loaded"""
+		all_phrases = open('pickl/allPhrasesProb')
+		#bigram_dic = open('pickl/bigramDic')
+		#unigram_dic= open('pickl/unigramDic')
 		self.all_phrases = pickle.load(all_phrases)
+		#self.bigram_dic = pickle.load(bigram_dic)
+		#self.unigram_dic = pickle.load(unigram_dic)
 		all_phrases.close()
+		#bigram_dic.close()
+		#unigram_dic.close()
+
 
 		all_unigrams = open('pickl/arpaUnigrams')
 		all_bigrams = open('pickl/arpaBigrams')
@@ -26,10 +34,9 @@ class compressor:
 		all_bigrams.close()
 
 	def simple_drop(self, sentences, text, scores):
-		"""more simple"""
+		"""drops adjs and adverbs based on tf-idf scores and location"""
 		score = numpy.percentile([scores.values()], 75) #threshold for deleting words - upper quartile
 		#print score
-
 		for sentence in sentences:
 			tokenized = [i[0] for i in sentence[0]] #just gets word in the sentence
 
@@ -51,19 +58,26 @@ class compressor:
 		return sentences
 
 	def get_dictionary_paraphrase(self, unigram): 
-		"""short method just to keep punctuation and capitalization uniform after searching through dictionary"""
+		"""gets best phrase"""
+		#r_punc and l_punc just to keep syntax
 		r_punc = ''
 		l_punc = ''
 		if unigram.rstrip(".'.,!?;:'*)]") != unigram: #if there exists a punctuation on the right
 			r_punc = unigram[-1]
 		if unigram.lstrip(".'.,!?;:'*([") != unigram: #if there exists a punctuation on the left
 			l_punc = unigram[-1]
-		new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
 
-		if unigram[0].lower() != unigram[0]: #check if capitalized
-			new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
-		new_unigram = l_punc + new_unigram + r_punc
-		return new_unigram
+		unigram_uniform = unigram.strip(".'.,!?;:'*()[]").lower()
+		for poss_paraphrase in self.all_phrases[unigram_uniform]:
+			prob_p = self.all_phrases[unigram_uniform][poss_paraphrase]
+			print "{0} changes to {1} with prob {2}".format(unigram, poss_paraphrase, prob_p)
+
+		#new_unigram = self.all_phrases[unigram.strip(".'.,!?;:'*()[]").lower()] #gets the unigram from dictionary
+
+		#if unigram[0].lower() != unigram[0]: #check if capitalized
+			#new_unigram = new_unigram.capitalize() #then also capitalize the new unigram
+		#new_unigram = l_punc + new_unigram + r_punc
+		return unigram
 
 	def compress_sentences(self, sentences_in_lists):
 		sentences = []
@@ -74,21 +88,27 @@ class compressor:
 			unigrams = []
 			changes = 0
 			new_sent = []
-			for index, word in enumerate(sent_list[0]):
-				if word[0] == '': continue
-				unigrams.append((word[0], word[1], index))
-			unigrams.sort(key = lambda x:x[1]) #sort based on score
-			for unigram in unigrams:
-				#print unigram
-				if changes > max_changes: break
+			#for index, word in enumerate(sent_list[0]):
+				#if word[0] == '': continue
+				#unigrams.append((word[0], word[1], index)) #Probably don't need index OLD CODE
+			#unigrams.sort(key = lambda x:x[1]) #sort based on score
+			#
+			# for sentence in sent_list[0]:
+			# 	print sentence
+			for index, unigram in enumerate(sent_list[0]):
+			#if changes > max_changes: break
 				unigram_uniform = unigram[0].strip(".'.,!?;:'*()[]").lower() #stripped and lowercased to check in the dictionary
 				if unigram_uniform in self.all_phrases:
-					print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
-					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1], unigram[2])
+					#print "changing:", unigram[0], ">>>", self.get_dictionary_paraphrase(unigram[0])
+					if index != 0: prev_word = sent_list[0][index-1][0]
+					else: prev_word = ''
+					if index != len(sent_list[0])-1: sent_list[0][index-1][0]
+					else: next_word = '' 
+					unigram = (self.get_dictionary_paraphrase(unigram[0]), unigram[1])
 					changes += 1
 				new_sent.append(unigram)
 
-			new_sent.sort(key = lambda x:x[2])
+			#new_sent.sort(key = lambda x:x[2])
 			sentence = ''
 			for ind,i in enumerate(new_sent):
 				word = i[0]

@@ -185,9 +185,9 @@ if __name__=='__main__':
 	if program.has_url(): length = args.length - 23 #-23 for link+space(twitter condenses all links to max 22 characters)
 	else: length = args.length
 	compressed = program.compressor.compress_sentences(summary2)
-	output = program.output_sentences(compressed, length)
+	# output = program.output_sentences(compressed, length)
 
-	print "\nurl:"
-	print program.url
-	print 'The output text is:'
-	print output
+	# print "\nurl:"
+	# print program.url
+	# print 'The output text is:'
+	# print output
