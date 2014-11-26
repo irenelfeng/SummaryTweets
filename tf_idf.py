@@ -56,7 +56,7 @@ class tfidf:
 			input_text = input_text.replace(self.url, '')
 		if len(input_text)==0: #if the only text provided was a url scrape the webpage for the text.
 			input_text = self.extract(self.url)
-		input_text = unidecode(input_text) #handle non unicode characters
+		input_text = unidecode(input_text) #handle non unicode characters - does not work on the server
 
 		return input_text
 
@@ -111,8 +111,8 @@ class tfidf:
 					if word != '-': #dashes are interpreted as word because they have spaces on both sides - and get very high tf- idf
 						num_words += 1
 						score = scores[string.lower(word.strip("\"'.,!?;:'*()-"))]
-						print word
-						print score
+						#print word
+						#print score
 						total_score += score
 						word_list.append((word, score))
 
@@ -126,6 +126,7 @@ class tfidf:
 		output = []
 		total_length = 0
 		sentences.sort(key = lambda x:x[1], reverse = True)
+		#print sentences
 
 		for sentence in sentences:
 			length = len(sentence[0]) + 1 #+1 for space before sentences
@@ -146,8 +147,7 @@ class tfidf:
 		if len(out_string)>0:
 			out_string += self.url
 		else:
-			out_string += 'It seems that all the sentences were too long to be compressed to a Tweet or the input text \
-						   was not in English. Thank you for using SummaryTweets.'
+			out_string += 'It seems that all the sentences were too long to be compressed to a Tweet or the input text was not in English. Thank you for using SummaryTweets.'
 
 		return out_string
 
