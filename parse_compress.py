@@ -185,32 +185,3 @@ class compressor:
 # def drop_phrases(sentences, text):
 # 	"""reads in sentences and drops certain parts of speech based on their tf-idf score"""
 # 	parser = Parser()
-
-#def simple_drop(self, sentences, text, scores):
-		#alternate method just utilizing bigram probability, but it is not choosing good words. 
-		#score = numpy.percentile([scores.values()], 85) #threshold for deleting words - upper quartile
-		#print score
-		# for sentence in sentences:
-		# 	tokenized = [i[0].strip("'.,?!") for i in sentence[0]] #just gets word in the sentence
-		# 	print tokenized
-
-		# 	POS = nltk.pos_tag(tokenized)
-		# 	#print POS
-		# 	for i, word_tuple in enumerate(sentence[0]):
-		# 		drop_word = word_tuple[0].lower().strip("'.,?")
-		# 		if i < len(tokenized)-1 and word_tuple[1]<= score and drop_word not in nodrop:
-
-		# 			if i != 0: prev_word = sentence[0][i-1][0]
-		# 			else: prev_word = '<s>'
-		# 			if i != len(sentence[0])-2: next_word_if_delete = tokenized[i+2]
-		# 			else: next_word_if_delete = '.'
-		# 			p_sentence_w_word = self.get_probability(drop_word, prev_word, tokenized[i+1])[1]
-		# 			p_sentence_wo_word = self.get_probability(tokenized[i+1],prev_word,next_word_if_delete)[1]
-
-		# 			if p_sentence_w_word <= p_sentence_wo_word:
-		# 				sentence[0].remove(word_tuple)
-		# 				del POS[i]
-		# 				print "removed {0}".format(word_tuple)
-		# 			else: print "score too low"
-
-		# return sentences
