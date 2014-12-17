@@ -7,7 +7,7 @@ Irene Feng, Orestis Lykouropoulos, Patrick Xu
 ##How to Use
 SummaryTweets has been uploaded to the following webpage.
 
-http://www.cs.dartmouth.edu/cgi-bin/cgiwrap/ifeng/summary.cgi
+http://www.cs.dartmouth.edu/cgi-bin/cgiwrap/patxu/summary.cgi
 
 It can also be used by running the bash shell script file run.sh. This runs tf_idf.py using approriate input arguments.
 The python file itself can be run with
